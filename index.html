@@ -851,12 +851,37 @@ function renderCollectionPage(col) {
       <div class="product-pin-wrap">${renderPin({ ...btn, size: 220 })}</div>
       <div class="product-title">${escapeHTML(btn.title)}</div>
       <div class="product-row">
-        <span class="display">$5</span>
+        <span class="display">$${btn.price || 5}</span>
         <button class="add-btn" onclick='addToCart(${JSON.stringify(btn).replace(/'/g, "&apos;")})'>Add to Cart</button>
       </div>
     </div>`).join('');
   document.getElementById('products-grid').innerHTML = html;
   setTimeout(() => lucide.createIcons(), 50);
+}
+async function loadProductsFromSupabase() {
+  const { data, error } = await window.supabase
+    .from('Products')
+    .select('*')
+    .eq('Active', true)
+    .order('id', { ascending: true })
+
+  if (error) {
+    console.error('Supabase product error:', error)
+    return
+  }
+
+  const products = data.map(item => ({
+    id: item.id,
+    title: item.Name,
+    price: item.Price,
+    customImg: item.Image
+  }))
+
+  renderCollectionPage({
+    title: 'State Series',
+    tagline: 'Collectible pinback buttons from coast to coast.',
+    buttons: products
+  })
 }
 
 // ============ DESIGNER ============
@@ -1024,6 +1049,7 @@ document.addEventListener('DOMContentLoaded', () => {
   renderSwatches();
   updatePreview();
   renderCart();
+  loadProductsFromSupabase();
   lucide.createIcons();
 
   document.getElementById('ai-prompt')?.addEventListener('input', (e) => {
