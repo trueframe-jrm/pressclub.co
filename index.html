@@ -1,0 +1,660 @@
+import React, { useState, useRef } from ‘react’;
+import { ShoppingBag, Upload, Type, Sparkles, X, Plus, Minus, Heart, ArrowRight, ArrowUpRight, Image as ImageIcon, Trash2, Info } from ‘lucide-react’;
+
+export default function ButtonShop() {
+const [view, setView] = useState(‘home’);
+const [activeCollection, setActiveCollection] = useState(null);
+const [cart, setCart] = useState([]);
+const [showCart, setShowCart] = useState(false);
+const [favorites, setFavorites] = useState(new Set());
+
+// Designer state
+const [designText, setDesignText] = useState(’’);
+const [designColor, setDesignColor] = useState(’#0A0A0A’);
+const [bgColor, setBgColor] = useState(’#FF4D2E’);
+const [uploadedImage, setUploadedImage] = useState(null);
+const [aiPrompt, setAiPrompt] = useState(’’);
+const [textSize, setTextSize] = useState(28);
+const [fontFamily, setFontFamily] = useState(‘display’);
+const [imageSize, setImageSize] = useState(70); // percentage of button size
+const fileInputRef = useRef(null);
+
+const collections = [
+{
+id: ‘state-pride’, name: ‘State Pride’, tagline: ‘Hometown, pinned.’, number: ‘01’,
+buttons: [
+{ id: ‘sp1’, title: ‘Tree Hugging in AZ Hits Different’, emoji: ‘🌵’, bg: ‘#F5E6D3’, accent: ‘#2D5016’ },
+{ id: ‘sp2’, title: ‘Texas Forever Y'all’, emoji: ‘🤠’, bg: ‘#FF4D2E’, accent: ‘#0A0A0A’ },
+{ id: ‘sp3’, title: ‘California Dreamin'’, emoji: ‘🌊’, bg: ‘#0A0A0A’, accent: ‘#FFD700’ },
+{ id: ‘sp4’, title: ‘Pure Michigan’, emoji: ‘🌲’, bg: ‘#1B4332’, accent: ‘#F5E6D3’ },
+{ id: ‘sp5’, title: ‘NY State of Mind’, emoji: ‘🗽’, bg: ‘#FFD700’, accent: ‘#0A0A0A’ },
+{ id: ‘sp6’, title: ‘Florida Man Approved’, emoji: ‘🐊’, bg: ‘#FF4D2E’, accent: ‘#F5E6D3’ },
+]
+},
+{
+id: ‘sarcastic’, name: ‘Sarcastic’, tagline: ‘Wear the eye-roll.’, number: ‘02’,
+buttons: [
+{ id: ‘sn1’, title: ‘Silently Correcting Your Grammar’, emoji: ‘📝’, bg: ‘#0A0A0A’, accent: ‘#FF4D2E’ },
+{ id: ‘sn2’, title: ‘Ugh, As If’, emoji: ‘🙄’, bg: ‘#FFD700’, accent: ‘#0A0A0A’ },
+{ id: ‘sn3’, title: ‘Sounds Like A You Problem’, emoji: ‘☕’, bg: ‘#F5E6D3’, accent: ‘#0A0A0A’ },
+{ id: ‘sn4’, title: ‘Bold of You to Assume’, emoji: ‘🤨’, bg: ‘#FF4D2E’, accent: ‘#FFD700’ },
+{ id: ‘sn5’, title: ‘Not Today, Satan’, emoji: ‘😈’, bg: ‘#0A0A0A’, accent: ‘#FFD700’ },
+{ id: ‘sn6’, title: ‘I Have Trust Issues’, emoji: ‘🦝’, bg: ‘#1B4332’, accent: ‘#F5E6D3’ },
+]
+},
+{
+id: ‘pride’, name: ‘Pride’, tagline: ‘Loud. Proud. Pinned.’, number: ‘03’,
+buttons: [
+{ id: ‘pr1’, title: ‘They / Them’, emoji: ‘🌈’, bg: ‘#F5E6D3’, accent: ‘#FF4D2E’ },
+{ id: ‘pr2’, title: ‘Love Is Love’, emoji: ‘❤️’, bg: ‘#FF4D2E’, accent: ‘#FFD700’ },
+{ id: ‘pr3’, title: ‘Proud Ally’, emoji: ‘🦋’, bg: ‘#FFD700’, accent: ‘#0A0A0A’ },
+{ id: ‘pr4’, title: ‘Trans Rights Are Human Rights’, emoji: ‘🏳️‍⚧️’, bg: ‘#0A0A0A’, accent: ‘#F5E6D3’ },
+{ id: ‘pr5’, title: ‘Bi & Proud’, emoji: ‘💜’, bg: ‘#5A3D8A’, accent: ‘#FFD700’ },
+{ id: ‘pr6’, title: ‘Found Family’, emoji: ‘🌻’, bg: ‘#FFD700’, accent: ‘#FF4D2E’ },
+]
+},
+{
+id: ‘emoji’, name: ‘Emoji Mood’, tagline: ‘A vibe. One inch.’, number: ‘04’,
+buttons: [
+{ id: ‘em1’, title: ‘Big Mood’, emoji: ‘✨’, bg: ‘#0A0A0A’, accent: ‘#FFD700’, large: true },
+{ id: ‘em2’, title: ‘Crying Inside’, emoji: ‘😭’, bg: ‘#FF4D2E’, accent: ‘#0A0A0A’, large: true },
+{ id: ‘em3’, title: ‘Touch Grass’, emoji: ‘🌱’, bg: ‘#1B4332’, accent: ‘#F5E6D3’, large: true },
+{ id: ‘em4’, title: ‘Brain Empty’, emoji: ‘🧠’, bg: ‘#F5E6D3’, accent: ‘#FF4D2E’, large: true },
+{ id: ‘em5’, title: ‘Coffee First’, emoji: ‘☕’, bg: ‘#FFD700’, accent: ‘#0A0A0A’, large: true },
+{ id: ‘em6’, title: ‘Vibes Only’, emoji: ‘🦋’, bg: ‘#FF4D2E’, accent: ‘#FFD700’, large: true },
+]
+},
+{
+id: ‘bach’, name: ‘Bach Party’, tagline: ‘Last fling before the ring.’, number: ‘05’,
+buttons: [
+{ id: ‘bch1’, title: ‘Bride Tribe’, emoji: ‘👰’, bg: ‘#F5E6D3’, accent: ‘#C83D8A’ },
+{ id: ‘bch2’, title: ‘Team Bride’, emoji: ‘💍’, bg: ‘#C83D8A’, accent: ‘#F5E6D3’ },
+{ id: ‘bch3’, title: ‘Same Penis Forever’, emoji: ‘🍆’, bg: ‘#FFD700’, accent: ‘#0A0A0A’ },
+{ id: ‘bch4’, title: ‘Pop the Bubbly’, emoji: ‘🍾’, bg: ‘#0A0A0A’, accent: ‘#FFD700’ },
+{ id: ‘bch5’, title: ‘Drunk in Love’, emoji: ‘🥂’, bg: ‘#FF4D2E’, accent: ‘#F5E6D3’ },
+{ id: ‘bch6’, title: ‘Last Sail Before the Veil’, emoji: ‘⛵’, bg: ‘#3D6B8A’, accent: ‘#F5E6D3’ },
+{ id: ‘bch7’, title: ‘Groom's Last Ride’, emoji: ‘🤠’, bg: ‘#0A0A0A’, accent: ‘#FF4D2E’ },
+{ id: ‘bch8’, title: ‘Hot Mess Express’, emoji: ‘🚂’, bg: ‘#C83D8A’, accent: ‘#FFD700’ },
+{ id: ‘bch9’, title: ‘I Do Crew’, emoji: ‘💋’, bg: ‘#F5E6D3’, accent: ‘#FF4D2E’ },
+]
+},
+];
+
+const allButtons = collections.flatMap(c => c.buttons.map(b => ({ …b, collection: c.name })));
+const bestsellers = [allButtons[0], allButtons[7], allButtons[12], allButtons[18], allButtons[2], allButtons[10], allButtons[15], allButtons[20]];
+
+const addToCart = (button, quantity = 1, custom = false) => {
+setCart(prev => {
+const existing = prev.find(item => item.id === button.id);
+if (existing) return prev.map(item => item.id === button.id ? { …item, quantity: item.quantity + quantity } : item);
+return […prev, { …button, quantity, custom, price: custom ? 6 : 5 }];
+});
+setShowCart(true);
+};
+
+const updateQty = (id, delta) => setCart(prev => prev.map(item =>
+item.id === id ? { …item, quantity: Math.max(0, item.quantity + delta) } : item
+).filter(item => item.quantity > 0));
+
+const removeFromCart = (id) => setCart(prev => prev.filter(item => item.id !== id));
+const toggleFavorite = (id) => {
+setFavorites(prev => { const next = new Set(prev); next.has(id) ? next.delete(id) : next.add(id); return next; });
+};
+
+const cartTotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+const cartCount = cart.reduce((sum, item) => sum + item.quantity, 0);
+
+const handleImageUpload = (e) => {
+const file = e.target.files?.[0];
+if (file) {
+const reader = new FileReader();
+reader.onload = (ev) => setUploadedImage(ev.target.result);
+reader.readAsDataURL(file);
+}
+};
+
+const ButtonPreview = ({ bg, accent, emoji, title, large, custom, customText, customImg, customBg, customAccent, customSize, customFont, customImgSize = 70, size = 200 }) => {
+const finalBg = custom ? customBg : bg;
+const finalAccent = custom ? customAccent : accent;
+return (
+<div
+className=“relative rounded-full flex items-center justify-center overflow-hidden flex-shrink-0”
+style={{
+width: size, height: size,
+background: `radial-gradient(circle at 30% 25%, ${shadeColor(finalBg, 12)}, ${finalBg} 50%, ${shadeColor(finalBg, -18)})`,
+boxShadow: `inset 0 -10px 24px rgba(0,0,0,0.18), inset 0 4px 14px rgba(255,255,255,0.35), 0 12px 32px rgba(0,0,0,0.22), 0 4px 8px rgba(0,0,0,0.12)`,
+}}
+>
+<div className=“absolute top-[8%] left-[22%] right-[22%] h-[22%] rounded-full opacity-50 pointer-events-none”
+style={{ background: ‘radial-gradient(ellipse at center, rgba(255,255,255,0.85), transparent 70%)’ }} />
+{custom ? (
+<div className="flex flex-col items-center justify-center text-center px-4 w-full h-full relative z-10">
+{customImg && (
+<img
+src={customImg}
+alt=””
+style={{
+width: `${customImgSize}%`,
+height: `${customImgSize}%`,
+objectFit: ‘contain’,
+marginBottom: customText ? ‘8px’ : ‘0’,
+}}
+/>
+)}
+{customText && (
+<div style={{
+color: customAccent,
+fontSize: `${customSize * (size / 200)}px`,
+fontFamily: customFont === ‘serif’ ? ‘“Fraunces”, serif’ : customFont === ‘mono’ ? ‘“JetBrains Mono”, monospace’ : customFont === ‘display’ ? ‘“Fraunces”, serif’ : ‘“Inter”, sans-serif’,
+fontWeight: customFont === ‘display’ ? 900 : 700,
+fontStyle: customFont === ‘display’ ? ‘italic’ : ‘normal’,
+lineHeight: 1.0, letterSpacing: ‘-0.02em’, wordBreak: ‘break-word’,
+}}>{customText}</div>
+)}
+</div>
+) : large ? (
+<div className=“text-center relative z-10” style={{ fontSize: size * 0.45 }}>{emoji}</div>
+) : (
+<div className="flex flex-col items-center justify-center px-3 text-center w-full h-full relative z-10">
+<div style={{ fontSize: size * 0.2, marginBottom: size * 0.015 }}>{emoji}</div>
+<div style={{
+color: accent, fontFamily: ‘“Fraunces”, Georgia, serif’,
+fontWeight: 900, fontStyle: ‘italic’,
+fontSize: size * 0.082, lineHeight: 1.0, letterSpacing: ‘-0.02em’,
+}}>{title}</div>
+</div>
+)}
+<div className=“absolute inset-[6px] rounded-full pointer-events-none” style={{ border: `1px solid ${finalAccent}25` }} />
+</div>
+);
+};
+
+return (
+<div className=“min-h-screen” style={{ background: ‘#F5E6D3’, fontFamily: ‘“Inter”, sans-serif’, color: ‘#0A0A0A’ }}>
+<style>{`@import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,900;1,9..144,400;1,9..144,900&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap'); body { font-family: 'Inter', sans-serif; -webkit-font-smoothing: antialiased; } .display { font-family: 'Fraunces', Georgia, serif; font-weight: 900; letter-spacing: -0.04em; line-height: 0.92; } .display-italic { font-family: 'Fraunces', Georgia, serif; font-weight: 900; font-style: italic; letter-spacing: -0.04em; line-height: 0.92; } .label { font-family: 'JetBrains Mono', monospace; font-size: 11px; text-transform: uppercase; letter-spacing: 0.12em; font-weight: 500; } @keyframes marquee { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } } .marquee-track { animation: marquee 35s linear infinite; } @keyframes spin-slow { from { transform: rotate(0deg); } to { transform: rotate(360deg); } } .spin-slow { animation: spin-slow 20s linear infinite; } @keyframes float-y { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-12px); } } .float-y { animation: float-y 4s ease-in-out infinite; } .grain::before { content: ''; position: absolute; inset: 0; background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.08 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); pointer-events: none; opacity: 0.6; z-index: 1; } .ticker-divider { display: inline-flex; align-items: center; gap: 32px; padding: 0 32px; } .btn-primary { background: #0A0A0A; color: #F5E6D3; padding: 16px 28px; border-radius: 999px; font-weight: 600; font-size: 15px; transition: all 0.25s cubic-bezier(0.2,0.8,0.2,1); display: inline-flex; align-items: center; gap: 10px; } .btn-primary:hover { background: #FF4D2E; transform: translateY(-2px); } .btn-ghost { background: transparent; color: #0A0A0A; padding: 14px 26px; border-radius: 999px; font-weight: 600; font-size: 15px; border: 1.5px solid #0A0A0A; transition: all 0.25s ease; display: inline-flex; align-items: center; gap: 10px; } .btn-ghost:hover { background: #0A0A0A; color: #F5E6D3; } .product-card { transition: all 0.4s cubic-bezier(0.2,0.8,0.2,1); } .product-card:hover { transform: translateY(-6px); } input[type="range"] { -webkit-appearance: none; height: 4px; background: #0A0A0A22; border-radius: 999px; } input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 18px; height: 18px; border-radius: 50%; background: #FF4D2E; cursor: pointer; }`}</style>
+
+```
+  <header className="sticky top-0 z-40" style={{ background: 'rgba(245,230,211,0.92)', backdropFilter: 'blur(12px)', borderBottom: '1px solid #0A0A0A15' }}>
+    <div className="max-w-[1400px] mx-auto px-6 lg:px-10 py-4 flex items-center justify-between">
+      <button onClick={() => setView('home')} className="flex items-center gap-2.5">
+        <div className="relative w-9 h-9">
+          <div className="absolute inset-0 rounded-full" style={{ background: '#FF4D2E', boxShadow: 'inset 0 -2px 4px rgba(0,0,0,0.2)' }}></div>
+          <div className="absolute inset-[5px] rounded-full" style={{ border: '1px solid #F5E6D344' }}></div>
+        </div>
+        <div>
+          <div className="display text-xl">PRESS&nbsp;CLUB</div>
+          <div className="label" style={{ color: '#0A0A0A88' }}>est. 2026</div>
+        </div>
+      </button>
+      <nav className="hidden md:flex items-center gap-9 label">
+        <button onClick={() => setView('home')} className="hover:text-[#FF4D2E] transition">Shop</button>
+        <button onClick={() => { setView('home'); setTimeout(() => document.getElementById('collections')?.scrollIntoView({ behavior: 'smooth' }), 50); }} className="hover:text-[#FF4D2E] transition">Collections</button>
+        <button onClick={() => setView('designer')} className="hover:text-[#FF4D2E] transition flex items-center gap-1.5">Make Your Own <ArrowUpRight size={12} /></button>
+        <a className="hover:text-[#FF4D2E] transition cursor-pointer">About</a>
+      </nav>
+      <button onClick={() => setShowCart(true)} className="flex items-center gap-2 px-4 py-2.5 rounded-full transition hover:scale-105" style={{ background: '#0A0A0A', color: '#F5E6D3' }}>
+        <ShoppingBag size={16} /><span className="text-sm font-semibold">{cartCount}</span>
+      </button>
+    </div>
+  </header>
+
+  <div className="overflow-hidden py-3" style={{ background: '#0A0A0A', color: '#F5E6D3' }}>
+    <div className="flex marquee-track whitespace-nowrap label">
+      {[...Array(2)].map((_, i) => (
+        <div key={i} className="flex">
+          <span className="ticker-divider">★ FREE US SHIPPING OVER $25</span>
+          <span className="ticker-divider">— SHIPS IN 48 HOURS —</span>
+          <span className="ticker-divider">★ 2.5" PINBACK BUTTONS</span>
+          <span className="ticker-divider">— PRESSED BY HAND —</span>
+          <span className="ticker-divider">★ DESIGN YOUR OWN</span>
+          <span className="ticker-divider">— UNLIMITED COLORWAYS —</span>
+        </div>
+      ))}
+    </div>
+  </div>
+
+  {view === 'home' && (
+    <>
+      <section className="relative overflow-hidden grain" style={{ background: '#F5E6D3' }}>
+        <div className="max-w-[1400px] mx-auto px-6 lg:px-10 pt-12 lg:pt-20 pb-16 relative z-10">
+          <div className="grid lg:grid-cols-12 gap-8 items-center">
+            <div className="lg:col-span-7">
+              <div className="label mb-6 flex items-center gap-3">
+                <span className="inline-block w-8 h-px bg-current"></span>A Pinback Button Co.
+              </div>
+              <h1 className="display text-[clamp(60px,11vw,180px)]">
+                Wear<br/>
+                <span style={{ color: '#FF4D2E' }}>what you</span><br/>
+                <span className="display-italic">mean</span><span style={{ color: '#FF4D2E' }}>.</span>
+              </h1>
+              <div className="grid sm:grid-cols-2 gap-8 mt-10 max-w-2xl">
+                <p className="text-base leading-relaxed" style={{ color: '#0A0A0ACC' }}>
+                  2.5" pinback buttons for people with opinions. Press the ones we made, or build your own from scratch in our design studio.
+                </p>
+                <div className="flex flex-wrap gap-3 items-start">
+                  <button onClick={() => document.getElementById('collections')?.scrollIntoView({ behavior: 'smooth' })} className="btn-primary">
+                    Shop Buttons <ArrowRight size={16} />
+                  </button>
+                  <button onClick={() => setView('designer')} className="btn-ghost">
+                    <Sparkles size={14} /> Design Yours
+                  </button>
+                </div>
+              </div>
+            </div>
+            <div className="lg:col-span-5 relative h-[480px] lg:h-[600px]">
+              <div className="absolute float-y" style={{ top: '8%', left: '10%' }}>
+                <ButtonPreview bg="#FF4D2E" accent="#0A0A0A" emoji="🌵" title="AZ Hits Different" size={180} />
+              </div>
+              <div className="absolute float-y" style={{ top: '38%', right: '5%', animationDelay: '1.3s' }}>
+                <ButtonPreview bg="#0A0A0A" accent="#FFD700" emoji="✨" large size={150} />
+              </div>
+              <div className="absolute float-y" style={{ bottom: '12%', left: '20%', animationDelay: '2.1s' }}>
+                <ButtonPreview bg="#FFD700" accent="#0A0A0A" emoji="🙄" title="Ugh, As If" size={170} />
+              </div>
+              <div className="absolute float-y" style={{ top: '5%', right: '25%', animationDelay: '0.6s' }}>
+                <ButtonPreview bg="#1B4332" accent="#F5E6D3" emoji="🌈" title="They/Them" size={130} />
+              </div>
+            </div>
+          </div>
+        </div>
+        <div className="border-t" style={{ borderColor: '#0A0A0A20' }}>
+          <div className="max-w-[1400px] mx-auto px-6 lg:px-10 py-6 grid grid-cols-2 md:grid-cols-4 gap-6">
+            <div><div className="display text-4xl">$5</div><div className="label mt-1" style={{ color: '#0A0A0A88' }}>per button</div></div>
+            <div><div className="display text-4xl">2.5"</div><div className="label mt-1" style={{ color: '#0A0A0A88' }}>diameter</div></div>
+            <div><div className="display text-4xl">48hr</div><div className="label mt-1" style={{ color: '#0A0A0A88' }}>turnaround</div></div>
+            <div><div className="display text-4xl">∞</div><div className="label mt-1" style={{ color: '#0A0A0A88' }}>customs</div></div>
+          </div>
+        </div>
+      </section>
+
+      <section id="collections" className="py-20 lg:py-28">
+        <div className="max-w-[1400px] mx-auto px-6 lg:px-10">
+          <div className="flex items-end justify-between mb-12 lg:mb-16">
+            <div>
+              <div className="label mb-4">— Collections / 05</div>
+              <h2 className="display text-5xl lg:text-7xl">Pick a<br /><span className="display-italic" style={{ color: '#FF4D2E' }}>flavor.</span></h2>
+            </div>
+            <div className="hidden md:block max-w-xs text-sm leading-relaxed" style={{ color: '#0A0A0AAA' }}>
+              Five worlds. Thirty-three designs. Zero filler. Tap one to see what's inside.
+            </div>
+          </div>
+          <div className="grid md:grid-cols-2 gap-6">
+            {collections.map((col, idx) => {
+              const heroBtn = col.buttons[0];
+              return (
+                <button key={col.id} onClick={() => { setActiveCollection(col); setView('collection'); window.scrollTo(0, 0); }}
+                  className="product-card group relative text-left rounded-3xl overflow-hidden grain"
+                  style={{ background: idx % 2 === 0 ? '#0A0A0A' : '#FF4D2E', color: '#F5E6D3', minHeight: '420px' }}>
+                  <div className="relative z-10 p-8 lg:p-10 h-full flex flex-col justify-between">
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <div className="label opacity-70">Collection / {col.number}</div>
+                        <h3 className="display text-5xl lg:text-6xl mt-3">{col.name}</h3>
+                        <div className="display-italic text-2xl mt-2" style={{ color: idx % 2 === 0 ? '#FFD700' : '#0A0A0A' }}>{col.tagline}</div>
+                      </div>
+                      <div className="w-12 h-12 rounded-full flex items-center justify-center transition-transform group-hover:rotate-45" style={{ background: '#F5E6D3', color: '#0A0A0A' }}>
+                        <ArrowUpRight size={20} />
+                      </div>
+                    </div>
+                    <div className="flex items-end justify-between mt-8">
+                      <div className="label opacity-70">{col.buttons.length} designs · from $5</div>
+                      <div className="float-y" style={{ animationDelay: `${idx * 0.3}s` }}>
+                        <ButtonPreview {...heroBtn} size={170} />
+                      </div>
+                    </div>
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
+      <section className="py-20 lg:py-28" style={{ background: '#0A0A0A', color: '#F5E6D3' }}>
+        <div className="max-w-[1400px] mx-auto px-6 lg:px-10">
+          <div className="flex items-end justify-between mb-12">
+            <div>
+              <div className="label mb-4 opacity-70">— Top Sellers</div>
+              <h2 className="display text-5xl lg:text-7xl">Pinned<br /><span className="display-italic" style={{ color: '#FF4D2E' }}>most.</span></h2>
+            </div>
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 lg:gap-6">
+            {bestsellers.map((btn, idx) => (
+              <div key={idx} className="product-card relative rounded-2xl p-6 group cursor-pointer"
+                style={{ background: '#F5E6D310', border: '1px solid #F5E6D320' }}>
+                <button onClick={(e) => { e.stopPropagation(); toggleFavorite(btn.id); }}
+                  className="absolute top-4 right-4 z-10 p-2 rounded-full transition"
+                  style={{ background: favorites.has(btn.id) ? '#FF4D2E' : '#F5E6D310' }}>
+                  <Heart size={14} fill={favorites.has(btn.id) ? '#F5E6D3' : 'none'} color="#F5E6D3" />
+                </button>
+                <div className="flex justify-center my-4"><ButtonPreview {...btn} size={150} /></div>
+                <div className="label opacity-60 mt-4">{btn.collection}</div>
+                <div className="font-semibold mt-1 text-sm leading-tight">{btn.title}</div>
+                <div className="flex items-center justify-between mt-3">
+                  <span className="display text-xl">$5</span>
+                  <button onClick={() => addToCart(btn)} className="text-xs font-semibold px-3 py-1.5 rounded-full transition" style={{ background: '#FF4D2E', color: '#F5E6D3' }}>Add +</button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="py-20 lg:py-32 relative overflow-hidden grain" style={{ background: '#FF4D2E', color: '#F5E6D3' }}>
+        <div className="max-w-[1400px] mx-auto px-6 lg:px-10 relative z-10">
+          <div className="grid lg:grid-cols-2 gap-12 items-center">
+            <div>
+              <div className="label mb-6 opacity-80">— The Design Studio</div>
+              <h2 className="display text-6xl lg:text-8xl">Or make<br /><span className="display-italic">it weird.</span></h2>
+              <p className="text-lg lg:text-xl mt-8 max-w-md leading-relaxed opacity-90">
+                Upload your art. Type some text. Pick colors. Or describe a vibe and let our AI draw it. Live preview shows the actual button.
+              </p>
+              <button onClick={() => setView('designer')} className="mt-10 inline-flex items-center gap-3 px-7 py-4 rounded-full font-semibold transition hover:scale-105" style={{ background: '#0A0A0A', color: '#F5E6D3' }}>
+                <Sparkles size={18} /> Open the Studio <ArrowRight size={16} />
+              </button>
+            </div>
+            <div className="relative h-[420px] flex items-center justify-center">
+              <div className="absolute spin-slow" style={{ width: '380px', height: '380px' }}>
+                <svg viewBox="0 0 380 380" className="w-full h-full">
+                  <defs>
+                    <path id="circ" d="M 190,190 m -160,0 a 160,160 0 1,1 320,0 a 160,160 0 1,1 -320,0" />
+                  </defs>
+                  <text className="label" style={{ fill: '#F5E6D3', fontSize: '18px', letterSpacing: '0.3em' }}>
+                    <textPath href="#circ">★ DESIGN ★ UPLOAD ★ AI MAGIC ★ PRINT ★ PIN ★ REPEAT ★ DESIGN ★ UPLOAD ★ AI MAGIC ★ PRINT ★</textPath>
+                  </text>
+                </svg>
+              </div>
+              <div className="float-y">
+                <ButtonPreview custom customText="MAKE IT WEIRD" customBg="#FFD700" customAccent="#0A0A0A" customSize={20} customFont="display" size={220} />
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <footer className="py-16 border-t" style={{ borderColor: '#0A0A0A20', background: '#F5E6D3' }}>
+        <div className="max-w-[1400px] mx-auto px-6 lg:px-10">
+          <div className="display text-[clamp(60px,12vw,180px)] leading-none">PRESS<span style={{ color: '#FF4D2E' }}>.</span></div>
+          <div className="grid md:grid-cols-3 gap-8 mt-12 pt-8 border-t" style={{ borderColor: '#0A0A0A20' }}>
+            <div>
+              <div className="label mb-3">Shop</div>
+              <div className="space-y-2 text-sm"><div>Collections</div><div>Bestsellers</div><div>Design Studio</div></div>
+            </div>
+            <div>
+              <div className="label mb-3">Help</div>
+              <div className="space-y-2 text-sm"><div>Shipping</div><div>Returns</div><div>Contact</div></div>
+            </div>
+            <div>
+              <div className="label mb-3">Get on the list</div>
+              <div className="flex gap-2 mt-2">
+                <input placeholder="email@whatever.com" className="flex-1 px-4 py-3 rounded-full text-sm bg-transparent border" style={{ borderColor: '#0A0A0A40' }} />
+                <button className="px-5 py-3 rounded-full text-sm font-semibold" style={{ background: '#0A0A0A', color: '#F5E6D3' }}>→</button>
+              </div>
+            </div>
+          </div>
+          <div className="label mt-12 opacity-60">© 2026 Press Club · Pressed by hand · Shipped with love</div>
+        </div>
+      </footer>
+    </>
+  )}
+
+  {view === 'collection' && activeCollection && (
+    <section className="py-12 lg:py-16 min-h-screen">
+      <div className="max-w-[1400px] mx-auto px-6 lg:px-10">
+        <button onClick={() => setView('home')} className="label mb-8 flex items-center gap-2 hover:text-[#FF4D2E] transition">← Back to all</button>
+        <div className="mb-12 lg:mb-16">
+          <div className="label mb-3">Collection / {activeCollection.number}</div>
+          <h2 className="display text-6xl lg:text-9xl">{activeCollection.name}<span style={{ color: '#FF4D2E' }}>.</span></h2>
+          <div className="display-italic text-2xl lg:text-3xl mt-4" style={{ color: '#FF4D2E' }}>{activeCollection.tagline}</div>
+          <div className="label mt-6" style={{ color: '#0A0A0AAA' }}>{activeCollection.buttons.length} designs · $5 each · 2.5"</div>
+        </div>
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
+          {activeCollection.buttons.map(btn => (
+            <div key={btn.id} className="product-card group relative rounded-3xl p-8" style={{ background: '#0A0A0A08', border: '1px solid #0A0A0A15' }}>
+              <button onClick={() => toggleFavorite(btn.id)} className="absolute top-5 right-5 z-10 p-2.5 rounded-full transition"
+                style={{ background: favorites.has(btn.id) ? '#FF4D2E' : '#F5E6D3', boxShadow: '0 2px 6px rgba(0,0,0,0.1)' }}>
+                <Heart size={14} fill={favorites.has(btn.id) ? '#F5E6D3' : 'none'} color={favorites.has(btn.id) ? '#F5E6D3' : '#0A0A0A'} />
+              </button>
+              <div className="flex justify-center mb-6"><ButtonPreview {...btn} size={220} /></div>
+              <div className="font-semibold mb-2 text-base leading-tight">{btn.title}</div>
+              <div className="flex items-center justify-between mt-4">
+                <span className="display text-2xl">$5</span>
+                <button onClick={() => addToCart(btn)} className="px-5 py-2.5 rounded-full text-sm font-semibold transition hover:scale-105" style={{ background: '#0A0A0A', color: '#F5E6D3' }}>Add to Cart</button>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  )}
+
+  {view === 'designer' && (
+    <section className="py-12 lg:py-16 min-h-screen">
+      <div className="max-w-[1400px] mx-auto px-6 lg:px-10">
+        <button onClick={() => setView('home')} className="label mb-8 flex items-center gap-2 hover:text-[#FF4D2E] transition">← Back to shop</button>
+        <div className="mb-12">
+          <div className="label mb-3">— The Design Studio</div>
+          <h2 className="display text-6xl lg:text-8xl">Make<br /><span className="display-italic" style={{ color: '#FF4D2E' }}>yours.</span></h2>
+        </div>
+        <div className="grid lg:grid-cols-5 gap-8 lg:gap-12">
+          <div className="lg:col-span-2 lg:sticky lg:top-28 self-start">
+            <div className="rounded-3xl p-10 text-center grain relative overflow-hidden" style={{ background: '#0A0A0A', color: '#F5E6D3' }}>
+              <div className="label mb-8 opacity-60 relative z-10">Live preview</div>
+              <div className="flex justify-center mb-8 relative z-10">
+                <ButtonPreview custom customText={designText} customImg={uploadedImage} customBg={bgColor} customAccent={designColor} customSize={textSize} customFont={fontFamily} customImgSize={imageSize} size={300} />
+              </div>
+              <div className="label mb-2 opacity-60 relative z-10">2.5" · pinback · $6</div>
+              <div className="display text-5xl mb-6 relative z-10">$6.00</div>
+              <button onClick={() => addToCart({
+                id: `custom-${Date.now()}`, title: designText || 'Custom Button',
+                bg: bgColor, accent: designColor, customImg: uploadedImage, customText: designText,
+                customFont: fontFamily, customSize: textSize, customImgSize: imageSize,
+              }, 1, true)}
+                disabled={!designText && !uploadedImage}
+                className="w-full py-4 rounded-full font-semibold transition hover:scale-[1.02] disabled:opacity-30 disabled:cursor-not-allowed relative z-10"
+                style={{ background: '#FF4D2E', color: '#F5E6D3' }}>
+                Add to Cart →
+              </button>
+            </div>
+          </div>
+          <div className="lg:col-span-3 space-y-6">
+            <div className="rounded-3xl p-8" style={{ background: '#0A0A0A08', border: '1px solid #0A0A0A15' }}>
+              <div className="label mb-4 flex items-center gap-2"><Type size={12} /> Text</div>
+              <input type="text" value={designText} onChange={(e) => setDesignText(e.target.value)} placeholder="Type something punchy" maxLength={40}
+                className="w-full px-5 py-4 rounded-2xl text-lg display"
+                style={{ background: '#F5E6D3', border: '1px solid #0A0A0A20', color: '#0A0A0A' }} />
+              <div className="mt-6 grid sm:grid-cols-2 gap-6">
+                <div>
+                  <div className="label mb-3">Typeface</div>
+                  <div className="flex gap-2 flex-wrap">
+                    {[{ id: 'display', label: 'Display' }, { id: 'serif', label: 'Serif' }, { id: 'sans', label: 'Sans' }, { id: 'mono', label: 'Mono' }].map(f => (
+                      <button key={f.id} onClick={() => setFontFamily(f.id)} className="px-4 py-2 rounded-full text-sm font-semibold transition"
+                        style={{ background: fontFamily === f.id ? '#0A0A0A' : 'transparent', color: fontFamily === f.id ? '#F5E6D3' : '#0A0A0A', border: '1.5px solid #0A0A0A' }}>
+                        {f.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                <div>
+                  <div className="label mb-3">Size · {textSize}px</div>
+                  <input type="range" min="14" max="48" value={textSize} onChange={(e) => setTextSize(Number(e.target.value))} className="w-full" />
+                </div>
+              </div>
+            </div>
+            <div className="rounded-3xl p-8" style={{ background: '#0A0A0A08', border: '1px solid #0A0A0A15' }}>
+              <div className="label mb-4">Colors</div>
+              <div className="grid sm:grid-cols-2 gap-6">
+                <div>
+                  <div className="text-xs mb-3 opacity-70">Background</div>
+                  <div className="flex flex-wrap gap-2">
+                    {['#F5E6D3', '#FF4D2E', '#FFD700', '#0A0A0A', '#1B4332', '#5A3D8A', '#3D6B8A', '#C83D8A'].map(c => (
+                      <button key={c} onClick={() => setBgColor(c)} className="w-12 h-12 rounded-full transition hover:scale-110"
+                        style={{ background: c, border: bgColor === c ? '3px solid #0A0A0A' : '1px solid #0A0A0A30', boxShadow: bgColor === c ? '0 0 0 2px #F5E6D3 inset' : 'none' }} />
+                    ))}
+                  </div>
+                </div>
+                <div>
+                  <div className="text-xs mb-3 opacity-70">Text / Accent</div>
+                  <div className="flex flex-wrap gap-2">
+                    {['#0A0A0A', '#F5E6D3', '#FF4D2E', '#FFD700', '#1B4332', '#5A3D8A', '#3D6B8A', '#C83D8A'].map(c => (
+                      <button key={c} onClick={() => setDesignColor(c)} className="w-12 h-12 rounded-full transition hover:scale-110"
+                        style={{ background: c, border: designColor === c ? '3px solid #0A0A0A' : '1px solid #0A0A0A30', boxShadow: designColor === c ? '0 0 0 2px #F5E6D3 inset' : 'none' }} />
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className="rounded-3xl p-8" style={{ background: '#0A0A0A08', border: '1px solid #0A0A0A15' }}>
+              <div className="label mb-4 flex items-center gap-2"><Upload size={12} /> Upload Art</div>
+              <input ref={fileInputRef} type="file" accept="image/*" onChange={handleImageUpload} className="hidden" />
+              {uploadedImage ? (
+                <>
+                  <div className="flex items-center gap-4 p-4 rounded-2xl" style={{ background: '#F5E6D3' }}>
+                    <img src={uploadedImage} alt="upload" className="w-20 h-20 object-cover rounded-xl" />
+                    <div className="flex-1">
+                      <div className="text-sm font-semibold">Uploaded ✓</div>
+                      <button onClick={() => { setUploadedImage(null); if (fileInputRef.current) fileInputRef.current.value = ''; }}
+                        className="text-sm flex items-center gap-1 mt-1 hover:underline" style={{ color: '#FF4D2E' }}>
+                        <Trash2 size={14} /> Remove
+                      </button>
+                    </div>
+                  </div>
+                  <div className="mt-6">
+                    <div className="flex items-center justify-between mb-3">
+                      <div className="label">Image Size</div>
+                      <div className="label" style={{ color: '#FF4D2E' }}>{imageSize}%</div>
+                    </div>
+                    <input
+                      type="range"
+                      min="20"
+                      max="95"
+                      value={imageSize}
+                      onChange={(e) => setImageSize(Number(e.target.value))}
+                      className="w-full"
+                    />
+                    <div className="flex justify-between mt-2 label opacity-50">
+                      <span>Small</span>
+                      <span>Fill</span>
+                    </div>
+                  </div>
+
+                  {/* Pro Tip */}
+                  <div className="mt-6 p-4 rounded-2xl flex gap-3" style={{ background: '#FFD70030', border: '1px solid #FFD70060' }}>
+                    <div className="flex-shrink-0 mt-0.5">
+                      <Info size={16} style={{ color: '#0A0A0A' }} />
+                    </div>
+                    <div className="flex-1">
+                      <div className="label mb-1">Pro Tip</div>
+                      <div className="text-xs leading-relaxed" style={{ color: '#0A0A0ACC' }}>
+                        For the cleanest look, upload a PNG with a transparent background. Need to remove a background? Try a free tool like <span className="font-semibold">remove.bg</span> before uploading.
+                      </div>
+                    </div>
+                  </div>
+                </>
+              ) : (
+                <button onClick={() => fileInputRef.current?.click()}
+                  className="w-full py-12 rounded-2xl border-2 border-dashed flex flex-col items-center gap-3 transition hover:border-[#FF4D2E] hover:bg-[#FF4D2E08]"
+                  style={{ borderColor: '#0A0A0A30' }}>
+                  <ImageIcon size={28} />
+                  <span className="text-sm font-medium">Drop a file or click to browse</span>
+                  <span className="label opacity-50">PNG · JPG · SVG · max 5MB</span>
+                </button>
+              )}
+            </div>
+            <div className="rounded-3xl p-8 relative overflow-hidden grain" style={{ background: '#FF4D2E', color: '#F5E6D3' }}>
+              <div className="label mb-2 flex items-center gap-2 relative z-10"><Sparkles size={12} /> AI Magic</div>
+              <div className="display-italic text-3xl mb-4 relative z-10">Describe a vibe.</div>
+              <textarea value={aiPrompt} onChange={(e) => setAiPrompt(e.target.value)}
+                placeholder="a sleepy raccoon drinking coffee, retro illustration" rows={2}
+                className="w-full px-5 py-4 rounded-2xl text-sm relative z-10"
+                style={{ background: '#F5E6D3', color: '#0A0A0A', border: 'none' }} />
+              <button disabled={!aiPrompt}
+                className="mt-4 px-6 py-3 rounded-full font-semibold text-sm transition hover:scale-105 disabled:opacity-40 flex items-center gap-2 relative z-10"
+                style={{ background: '#0A0A0A', color: '#F5E6D3' }}>
+                <Sparkles size={14} /> Generate
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  )}
+
+  {showCart && (
+    <div className="fixed inset-0 z-50 flex" onClick={() => setShowCart(false)}>
+      <div className="absolute inset-0" style={{ background: 'rgba(10,10,10,0.5)', backdropFilter: 'blur(4px)' }} />
+      <div className="ml-auto w-full max-w-md h-full overflow-y-auto relative grain" style={{ background: '#F5E6D3' }} onClick={(e) => e.stopPropagation()}>
+        <div className="p-6 lg:p-8 relative z-10">
+          <div className="flex items-center justify-between mb-8">
+            <div>
+              <div className="label">Your Bag</div>
+              <div className="display text-4xl mt-1">{cartCount} {cartCount === 1 ? 'item' : 'items'}</div>
+            </div>
+            <button onClick={() => setShowCart(false)} className="p-2 rounded-full transition hover:bg-black/5"><X size={20} /></button>
+          </div>
+          {cart.length === 0 ? (
+            <div className="text-center py-20">
+              <div className="display-italic text-3xl mb-4 opacity-50">empty.</div>
+              <div className="label opacity-60">Add some buttons</div>
+            </div>
+          ) : (
+            <>
+              <div className="space-y-3 mb-8">
+                {cart.map(item => (
+                  <div key={item.id} className="flex gap-4 p-4 rounded-2xl" style={{ background: '#0A0A0A06', border: '1px solid #0A0A0A12' }}>
+                    <ButtonPreview {...item} custom={item.custom} customText={item.customText} customImg={item.customImg} customBg={item.bg} customAccent={item.accent} customSize={item.customSize} customFont={item.customFont} customImgSize={item.customImgSize} size={70} />
+                    <div className="flex-1 min-w-0">
+                      <div className="font-semibold text-sm leading-tight">{item.title || 'Custom Button'}</div>
+                      {item.custom && <div className="label mt-0.5" style={{ color: '#FF4D2E' }}>Your Design</div>}
+                      <div className="text-sm mt-1 opacity-70">${item.price.toFixed(2)}</div>
+                      <div className="flex items-center gap-2 mt-3">
+                        <button onClick={() => updateQty(item.id, -1)} className="w-7 h-7 rounded-full flex items-center justify-center transition hover:scale-110" style={{ background: '#0A0A0A', color: '#F5E6D3' }}><Minus size={11} /></button>
+                        <span className="text-sm font-semibold w-6 text-center">{item.quantity}</span>
+                        <button onClick={() => updateQty(item.id, 1)} className="w-7 h-7 rounded-full flex items-center justify-center transition hover:scale-110" style={{ background: '#0A0A0A', color: '#F5E6D3' }}><Plus size={11} /></button>
+                        <button onClick={() => removeFromCart(item.id)} className="ml-auto p-1 hover:scale-110 transition"><Trash2 size={14} style={{ color: '#FF4D2E' }} /></button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <div className="border-t pt-6" style={{ borderColor: '#0A0A0A20' }}>
+                <div className="flex justify-between mb-2 text-sm opacity-70"><span>Subtotal</span><span>${cartTotal.toFixed(2)}</span></div>
+                <div className="flex justify-between mb-6 text-sm opacity-70">
+                  <span>Shipping</span><span>{cartTotal >= 25 ? 'FREE ★' : '$3.50'}</span>
+                </div>
+                <div className="flex justify-between mb-8">
+                  <span className="display text-3xl">Total</span>
+                  <span className="display text-3xl">${(cartTotal + (cartTotal >= 25 ? 0 : 3.5)).toFixed(2)}</span>
+                </div>
+                {cartTotal < 25 && (
+                  <div className="mb-4 p-3 rounded-xl text-xs text-center" style={{ background: '#FFD70030' }}>
+                    Add <strong>${(25 - cartTotal).toFixed(2)}</strong> more for free shipping
+                  </div>
+                )}
+                <button className="w-full py-4 rounded-full font-semibold transition hover:scale-[1.02] flex items-center justify-center gap-2" style={{ background: '#FF4D2E', color: '#F5E6D3' }}>
+                  Checkout · ${(cartTotal + (cartTotal >= 25 ? 0 : 3.5)).toFixed(2)} <ArrowRight size={16} />
+                </button>
+                <div className="label text-center mt-4 opacity-60">Secure · Stripe · 48hr ship</div>
+              </div>
+            </>
+          )}
+        </div>
+      </div>
+    </div>
+  )}
+</div>
+```
+
+);
+}
+
+function shadeColor(color, percent) {
+const num = parseInt(color.replace(’#’, ‘’), 16);
+const amt = Math.round(2.55 * percent);
+const R = (num >> 16) + amt;
+const G = (num >> 8 & 0x00FF) + amt;
+const B = (num & 0x0000FF) + amt;
+return ‘#’ + (0x1000000 + (R < 255 ? R < 1 ? 0 : R : 255) * 0x10000 +
+(G < 255 ? G < 1 ? 0 : G : 255) * 0x100 +
+(B < 255 ? B < 1 ? 0 : B : 255)).toString(16).slice(1);
+}
