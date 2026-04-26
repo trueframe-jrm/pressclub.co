@@ -1033,6 +1033,7 @@ document.addEventListener('DOMContentLoaded', () => {
 </script>
 
 <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
+
 <script>
 if (window.netlifyIdentity) {
   window.netlifyIdentity.on("init", user => {
@@ -1044,5 +1045,7 @@ if (window.netlifyIdentity) {
   });
 }
 </script>
+
+<script type="module" src="supabase.js"></script>
 </body>
 </html>
