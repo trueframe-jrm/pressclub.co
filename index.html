@@ -861,18 +861,17 @@ function renderCollectionPage(col) {
 }
 async function loadProductsFromSupabase() {
   if (!window.supabase) {
-    console.error('Supabase is not loaded yet');
+    renderBestsellers();
     return;
   }
 
   const { data, error } = await window.supabase
     .from('Products')
     .select('*')
-    .eq('Active', true)
     .order('id', { ascending: true });
 
-  if (error) {
-    console.error('Supabase product error:', error);
+  if (error || !data || data.length === 0) {
+    renderBestsellers();
     return;
   }
 
@@ -890,41 +889,8 @@ async function loadProductsFromSupabase() {
   }));
 
   window.supabaseProducts = products;
-
   renderBestsellers();
-
-  renderCollectionPage({
-    name: 'State Series',
-    number: '01',
-    tagline: 'Collectible pinback buttons from coast to coast.',
-    buttons: products
-  });
-}  const { data, error } = await window.supabase
-    .from('Products')
-    .select('*')
-    .eq('Active', true)
-    .order('id', { ascending: true })
-
-  if (error) {
-    console.error('Supabase product error:', error)
-    return
-  }
-
-  const products = data.map(item => ({
-    id: item.id,
-    title: item.Name,
-    price: item.Price,
-    customImg: item.Image
-  }))
-window.supabaseProducts = products;
-  renderBestsellers();
-  renderCollectionPage({
-    title: 'State Series',
-    tagline: 'Collectible pinback buttons from coast to coast.',
-    buttons: products
-  })
 }
-
 // ============ DESIGNER ============
 function renderFontOptions() {
   document.getElementById('font-options').innerHTML = FONTS.map(f =>
