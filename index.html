@@ -1,660 +1,1020 @@
-import React, { useState, useRef } from ‘react’;
-import { ShoppingBag, Upload, Type, Sparkles, X, Plus, Minus, Heart, ArrowRight, ArrowUpRight, Image as ImageIcon, Trash2, Info } from ‘lucide-react’;
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Press Club — Pinback Buttons & Badges</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,900;1,9..144,400;1,9..144,900&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { background: #F5E6D3; color: #0A0A0A; font-family: 'Inter', sans-serif; -webkit-font-smoothing: antialiased; }
+  button { font-family: inherit; cursor: pointer; border: none; background: none; color: inherit; }
+  input, textarea { font-family: inherit; }
+  a { color: inherit; text-decoration: none; }
+  img { max-width: 100%; display: block; }
 
-export default function ButtonShop() {
-const [view, setView] = useState(‘home’);
-const [activeCollection, setActiveCollection] = useState(null);
-const [cart, setCart] = useState([]);
-const [showCart, setShowCart] = useState(false);
-const [favorites, setFavorites] = useState(new Set());
+  .display { font-family: 'Fraunces', Georgia, serif; font-weight: 900; letter-spacing: -0.04em; line-height: 0.92; }
+  .display-italic { font-family: 'Fraunces', Georgia, serif; font-weight: 900; font-style: italic; letter-spacing: -0.04em; line-height: 0.92; }
+  .label { font-family: 'JetBrains Mono', monospace; font-size: 11px; text-transform: uppercase; letter-spacing: 0.12em; font-weight: 500; }
 
-// Designer state
-const [designText, setDesignText] = useState(’’);
-const [designColor, setDesignColor] = useState(’#0A0A0A’);
-const [bgColor, setBgColor] = useState(’#FF4D2E’);
-const [uploadedImage, setUploadedImage] = useState(null);
-const [aiPrompt, setAiPrompt] = useState(’’);
-const [textSize, setTextSize] = useState(28);
-const [fontFamily, setFontFamily] = useState(‘display’);
-const [imageSize, setImageSize] = useState(70); // percentage of button size
-const fileInputRef = useRef(null);
+  .container { max-width: 1400px; margin: 0 auto; padding: 0 24px; }
+  @media (min-width: 1024px) { .container { padding: 0 40px; } }
 
-const collections = [
-{
-id: ‘state-pride’, name: ‘State Pride’, tagline: ‘Hometown, pinned.’, number: ‘01’,
-buttons: [
-{ id: ‘sp1’, title: ‘Tree Hugging in AZ Hits Different’, emoji: ‘🌵’, bg: ‘#F5E6D3’, accent: ‘#2D5016’ },
-{ id: ‘sp2’, title: ‘Texas Forever Y'all’, emoji: ‘🤠’, bg: ‘#FF4D2E’, accent: ‘#0A0A0A’ },
-{ id: ‘sp3’, title: ‘California Dreamin'’, emoji: ‘🌊’, bg: ‘#0A0A0A’, accent: ‘#FFD700’ },
-{ id: ‘sp4’, title: ‘Pure Michigan’, emoji: ‘🌲’, bg: ‘#1B4332’, accent: ‘#F5E6D3’ },
-{ id: ‘sp5’, title: ‘NY State of Mind’, emoji: ‘🗽’, bg: ‘#FFD700’, accent: ‘#0A0A0A’ },
-{ id: ‘sp6’, title: ‘Florida Man Approved’, emoji: ‘🐊’, bg: ‘#FF4D2E’, accent: ‘#F5E6D3’ },
-]
-},
-{
-id: ‘sarcastic’, name: ‘Sarcastic’, tagline: ‘Wear the eye-roll.’, number: ‘02’,
-buttons: [
-{ id: ‘sn1’, title: ‘Silently Correcting Your Grammar’, emoji: ‘📝’, bg: ‘#0A0A0A’, accent: ‘#FF4D2E’ },
-{ id: ‘sn2’, title: ‘Ugh, As If’, emoji: ‘🙄’, bg: ‘#FFD700’, accent: ‘#0A0A0A’ },
-{ id: ‘sn3’, title: ‘Sounds Like A You Problem’, emoji: ‘☕’, bg: ‘#F5E6D3’, accent: ‘#0A0A0A’ },
-{ id: ‘sn4’, title: ‘Bold of You to Assume’, emoji: ‘🤨’, bg: ‘#FF4D2E’, accent: ‘#FFD700’ },
-{ id: ‘sn5’, title: ‘Not Today, Satan’, emoji: ‘😈’, bg: ‘#0A0A0A’, accent: ‘#FFD700’ },
-{ id: ‘sn6’, title: ‘I Have Trust Issues’, emoji: ‘🦝’, bg: ‘#1B4332’, accent: ‘#F5E6D3’ },
-]
-},
-{
-id: ‘pride’, name: ‘Pride’, tagline: ‘Loud. Proud. Pinned.’, number: ‘03’,
-buttons: [
-{ id: ‘pr1’, title: ‘They / Them’, emoji: ‘🌈’, bg: ‘#F5E6D3’, accent: ‘#FF4D2E’ },
-{ id: ‘pr2’, title: ‘Love Is Love’, emoji: ‘❤️’, bg: ‘#FF4D2E’, accent: ‘#FFD700’ },
-{ id: ‘pr3’, title: ‘Proud Ally’, emoji: ‘🦋’, bg: ‘#FFD700’, accent: ‘#0A0A0A’ },
-{ id: ‘pr4’, title: ‘Trans Rights Are Human Rights’, emoji: ‘🏳️‍⚧️’, bg: ‘#0A0A0A’, accent: ‘#F5E6D3’ },
-{ id: ‘pr5’, title: ‘Bi & Proud’, emoji: ‘💜’, bg: ‘#5A3D8A’, accent: ‘#FFD700’ },
-{ id: ‘pr6’, title: ‘Found Family’, emoji: ‘🌻’, bg: ‘#FFD700’, accent: ‘#FF4D2E’ },
-]
-},
-{
-id: ‘emoji’, name: ‘Emoji Mood’, tagline: ‘A vibe. One inch.’, number: ‘04’,
-buttons: [
-{ id: ‘em1’, title: ‘Big Mood’, emoji: ‘✨’, bg: ‘#0A0A0A’, accent: ‘#FFD700’, large: true },
-{ id: ‘em2’, title: ‘Crying Inside’, emoji: ‘😭’, bg: ‘#FF4D2E’, accent: ‘#0A0A0A’, large: true },
-{ id: ‘em3’, title: ‘Touch Grass’, emoji: ‘🌱’, bg: ‘#1B4332’, accent: ‘#F5E6D3’, large: true },
-{ id: ‘em4’, title: ‘Brain Empty’, emoji: ‘🧠’, bg: ‘#F5E6D3’, accent: ‘#FF4D2E’, large: true },
-{ id: ‘em5’, title: ‘Coffee First’, emoji: ‘☕’, bg: ‘#FFD700’, accent: ‘#0A0A0A’, large: true },
-{ id: ‘em6’, title: ‘Vibes Only’, emoji: ‘🦋’, bg: ‘#FF4D2E’, accent: ‘#FFD700’, large: true },
-]
-},
-{
-id: ‘bach’, name: ‘Bach Party’, tagline: ‘Last fling before the ring.’, number: ‘05’,
-buttons: [
-{ id: ‘bch1’, title: ‘Bride Tribe’, emoji: ‘👰’, bg: ‘#F5E6D3’, accent: ‘#C83D8A’ },
-{ id: ‘bch2’, title: ‘Team Bride’, emoji: ‘💍’, bg: ‘#C83D8A’, accent: ‘#F5E6D3’ },
-{ id: ‘bch3’, title: ‘Same Penis Forever’, emoji: ‘🍆’, bg: ‘#FFD700’, accent: ‘#0A0A0A’ },
-{ id: ‘bch4’, title: ‘Pop the Bubbly’, emoji: ‘🍾’, bg: ‘#0A0A0A’, accent: ‘#FFD700’ },
-{ id: ‘bch5’, title: ‘Drunk in Love’, emoji: ‘🥂’, bg: ‘#FF4D2E’, accent: ‘#F5E6D3’ },
-{ id: ‘bch6’, title: ‘Last Sail Before the Veil’, emoji: ‘⛵’, bg: ‘#3D6B8A’, accent: ‘#F5E6D3’ },
-{ id: ‘bch7’, title: ‘Groom's Last Ride’, emoji: ‘🤠’, bg: ‘#0A0A0A’, accent: ‘#FF4D2E’ },
-{ id: ‘bch8’, title: ‘Hot Mess Express’, emoji: ‘🚂’, bg: ‘#C83D8A’, accent: ‘#FFD700’ },
-{ id: ‘bch9’, title: ‘I Do Crew’, emoji: ‘💋’, bg: ‘#F5E6D3’, accent: ‘#FF4D2E’ },
-]
-},
-];
+  /* HEADER */
+  .header { position: sticky; top: 0; z-index: 40; background: rgba(245,230,211,0.92); backdrop-filter: blur(12px); border-bottom: 1px solid #0A0A0A15; }
+  .header-inner { display: flex; align-items: center; justify-content: space-between; padding: 16px 0; }
+  .logo { display: flex; align-items: center; gap: 10px; }
+  .logo-circle { position: relative; width: 36px; height: 36px; }
+  .logo-circle::before { content: ''; position: absolute; inset: 0; border-radius: 50%; background: #FF4D2E; box-shadow: inset 0 -2px 4px rgba(0,0,0,0.2); }
+  .logo-circle::after { content: ''; position: absolute; inset: 5px; border-radius: 50%; border: 1px solid rgba(245,230,211,0.27); }
+  .logo-text .display { font-size: 20px; }
+  .logo-text .label { color: #0A0A0A88; }
+  .nav { display: none; align-items: center; gap: 36px; }
+  .nav button { transition: color 0.2s; display: inline-flex; align-items: center; gap: 6px; }
+  .nav button:hover { color: #FF4D2E; }
+  @media (min-width: 768px) { .nav { display: flex; } }
+  .cart-btn { display: flex; align-items: center; gap: 8px; background: #0A0A0A; color: #F5E6D3; padding: 10px 16px; border-radius: 999px; transition: transform 0.2s; }
+  .cart-btn:hover { transform: scale(1.05); }
+  .cart-count { font-size: 14px; font-weight: 600; }
 
-const allButtons = collections.flatMap(c => c.buttons.map(b => ({ …b, collection: c.name })));
-const bestsellers = [allButtons[0], allButtons[7], allButtons[12], allButtons[18], allButtons[2], allButtons[10], allButtons[15], allButtons[20]];
+  /* MARQUEE */
+  .marquee { overflow: hidden; padding: 12px 0; background: #0A0A0A; color: #F5E6D3; }
+  .marquee-track { display: flex; white-space: nowrap; animation: marquee 35s linear infinite; }
+  @keyframes marquee { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+  .ticker-divider { display: inline-flex; align-items: center; gap: 32px; padding: 0 32px; }
 
-const addToCart = (button, quantity = 1, custom = false) => {
-setCart(prev => {
-const existing = prev.find(item => item.id === button.id);
-if (existing) return prev.map(item => item.id === button.id ? { …item, quantity: item.quantity + quantity } : item);
-return […prev, { …button, quantity, custom, price: custom ? 6 : 5 }];
-});
-setShowCart(true);
-};
+  /* BUTTONS */
+  .btn-primary { background: #0A0A0A; color: #F5E6D3; padding: 16px 28px; border-radius: 999px; font-weight: 600; font-size: 15px; transition: all 0.25s cubic-bezier(0.2,0.8,0.2,1); display: inline-flex; align-items: center; gap: 10px; }
+  .btn-primary:hover { background: #FF4D2E; transform: translateY(-2px); }
+  .btn-accent { background: #FF4D2E; color: #F5E6D3; padding: 16px 28px; border-radius: 999px; font-weight: 600; font-size: 15px; transition: all 0.25s; display: inline-flex; align-items: center; gap: 10px; }
+  .btn-accent:hover { background: #0A0A0A; transform: translateY(-2px); }
+  .btn-ghost { background: transparent; color: #0A0A0A; padding: 14px 26px; border-radius: 999px; font-weight: 600; font-size: 15px; border: 1.5px solid #0A0A0A; transition: all 0.25s; display: inline-flex; align-items: center; gap: 10px; }
+  .btn-ghost:hover { background: #0A0A0A; color: #F5E6D3; }
 
-const updateQty = (id, delta) => setCart(prev => prev.map(item =>
-item.id === id ? { …item, quantity: Math.max(0, item.quantity + delta) } : item
-).filter(item => item.quantity > 0));
+  /* PIN BUTTON STYLING */
+  .pin {
+    position: relative; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+    overflow: hidden; flex-shrink: 0;
+    box-shadow: inset 0 -10px 24px rgba(0,0,0,0.18), inset 0 4px 14px rgba(255,255,255,0.35), 0 12px 32px rgba(0,0,0,0.22), 0 4px 8px rgba(0,0,0,0.12);
+  }
+  .pin::before {
+    content: ''; position: absolute; top: 8%; left: 22%; right: 22%; height: 22%;
+    border-radius: 50%; opacity: 0.5; pointer-events: none;
+    background: radial-gradient(ellipse at center, rgba(255,255,255,0.85), transparent 70%);
+  }
+  .pin-inner-ring { position: absolute; inset: 6px; border-radius: 50%; pointer-events: none; }
+  .pin-content { position: relative; z-index: 10; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 0 12px; text-align: center; width: 100%; height: 100%; }
+  .pin-emoji { line-height: 1; }
+  .pin-title { font-family: 'Fraunces', Georgia, serif; font-weight: 900; font-style: italic; line-height: 1.0; letter-spacing: -0.02em; }
 
-const removeFromCart = (id) => setCart(prev => prev.filter(item => item.id !== id));
-const toggleFavorite = (id) => {
-setFavorites(prev => { const next = new Set(prev); next.has(id) ? next.delete(id) : next.add(id); return next; });
-};
+  /* ANIMATIONS */
+  @keyframes float-y { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-12px); } }
+  .float-y { animation: float-y 4s ease-in-out infinite; }
+  @keyframes spin-slow { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+  .spin-slow { animation: spin-slow 20s linear infinite; }
 
-const cartTotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
-const cartCount = cart.reduce((sum, item) => sum + item.quantity, 0);
+  /* GRAIN */
+  .grain { position: relative; }
+  .grain::after {
+    content: ''; position: absolute; inset: 0; pointer-events: none; opacity: 0.6; z-index: 1;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.08 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
 
-const handleImageUpload = (e) => {
-const file = e.target.files?.[0];
-if (file) {
-const reader = new FileReader();
-reader.onload = (ev) => setUploadedImage(ev.target.result);
-reader.readAsDataURL(file);
-}
-};
+  /* HERO */
+  .hero { position: relative; overflow: hidden; }
+  .hero-grid { display: grid; gap: 32px; align-items: center; padding: 48px 0 64px; position: relative; z-index: 10; }
+  @media (min-width: 1024px) { .hero-grid { grid-template-columns: repeat(12, 1fr); padding-top: 80px; } }
+  .hero-text { grid-column: span 12; }
+  @media (min-width: 1024px) { .hero-text { grid-column: span 7; } }
+  .hero-h1 { font-size: clamp(60px, 11vw, 180px); }
+  .hero-h1 .accent { color: #FF4D2E; }
+  .hero-row { display: grid; gap: 32px; margin-top: 40px; max-width: 700px; }
+  @media (min-width: 640px) { .hero-row { grid-template-columns: 1fr 1fr; } }
+  .hero-row p { font-size: 16px; line-height: 1.6; color: #0A0A0ACC; }
+  .hero-cta { display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-start; }
+  .hero-pins { grid-column: span 12; position: relative; height: 480px; }
+  @media (min-width: 1024px) { .hero-pins { grid-column: span 5; height: 600px; } }
+  .hero-pins .pin-wrap { position: absolute; }
 
-const ButtonPreview = ({ bg, accent, emoji, title, large, custom, customText, customImg, customBg, customAccent, customSize, customFont, customImgSize = 70, size = 200 }) => {
-const finalBg = custom ? customBg : bg;
-const finalAccent = custom ? customAccent : accent;
-return (
-<div
-className=“relative rounded-full flex items-center justify-center overflow-hidden flex-shrink-0”
-style={{
-width: size, height: size,
-background: `radial-gradient(circle at 30% 25%, ${shadeColor(finalBg, 12)}, ${finalBg} 50%, ${shadeColor(finalBg, -18)})`,
-boxShadow: `inset 0 -10px 24px rgba(0,0,0,0.18), inset 0 4px 14px rgba(255,255,255,0.35), 0 12px 32px rgba(0,0,0,0.22), 0 4px 8px rgba(0,0,0,0.12)`,
-}}
->
-<div className=“absolute top-[8%] left-[22%] right-[22%] h-[22%] rounded-full opacity-50 pointer-events-none”
-style={{ background: ‘radial-gradient(ellipse at center, rgba(255,255,255,0.85), transparent 70%)’ }} />
-{custom ? (
-<div className="flex flex-col items-center justify-center text-center px-4 w-full h-full relative z-10">
-{customImg && (
-<img
-src={customImg}
-alt=””
-style={{
-width: `${customImgSize}%`,
-height: `${customImgSize}%`,
-objectFit: ‘contain’,
-marginBottom: customText ? ‘8px’ : ‘0’,
-}}
-/>
-)}
-{customText && (
-<div style={{
-color: customAccent,
-fontSize: `${customSize * (size / 200)}px`,
-fontFamily: customFont === ‘serif’ ? ‘“Fraunces”, serif’ : customFont === ‘mono’ ? ‘“JetBrains Mono”, monospace’ : customFont === ‘display’ ? ‘“Fraunces”, serif’ : ‘“Inter”, sans-serif’,
-fontWeight: customFont === ‘display’ ? 900 : 700,
-fontStyle: customFont === ‘display’ ? ‘italic’ : ‘normal’,
-lineHeight: 1.0, letterSpacing: ‘-0.02em’, wordBreak: ‘break-word’,
-}}>{customText}</div>
-)}
+  .hero-stats { border-top: 1px solid #0A0A0A20; }
+  .hero-stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; padding: 24px 0; }
+  @media (min-width: 768px) { .hero-stats-grid { grid-template-columns: repeat(4, 1fr); } }
+  .hero-stat .display { font-size: 36px; }
+  .hero-stat .label { margin-top: 4px; color: #0A0A0A88; }
+
+  /* SECTIONS */
+  .section { padding: 80px 0; }
+  @media (min-width: 1024px) { .section { padding: 112px 0; } }
+  .section-header { display: flex; align-items: flex-end; justify-content: space-between; margin-bottom: 48px; gap: 24px; }
+  @media (min-width: 1024px) { .section-header { margin-bottom: 64px; } }
+  .section-header h2 { font-size: 48px; }
+  @media (min-width: 1024px) { .section-header h2 { font-size: 72px; } }
+  .section-meta { display: none; max-width: 320px; font-size: 14px; line-height: 1.6; color: #0A0A0AAA; }
+  @media (min-width: 768px) { .section-meta { display: block; } }
+
+  /* COLLECTIONS GRID */
+  .collections-grid { display: grid; gap: 24px; }
+  @media (min-width: 768px) { .collections-grid { grid-template-columns: 1fr 1fr; } }
+  .collection-card {
+    position: relative; text-align: left; border-radius: 24px; overflow: hidden;
+    min-height: 420px; color: #F5E6D3; transition: transform 0.4s cubic-bezier(0.2,0.8,0.2,1);
+    padding: 32px;
+  }
+  @media (min-width: 1024px) { .collection-card { padding: 40px; } }
+  .collection-card:hover { transform: translateY(-6px); }
+  .collection-card.dark { background: #0A0A0A; }
+  .collection-card.orange { background: #FF4D2E; }
+  .collection-card-inner { position: relative; z-index: 10; height: 100%; display: flex; flex-direction: column; justify-content: space-between; min-height: 360px; }
+  .collection-card-top { display: flex; justify-content: space-between; align-items: flex-start; }
+  .collection-card-arrow {
+    width: 48px; height: 48px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+    background: #F5E6D3; color: #0A0A0A; transition: transform 0.4s;
+  }
+  .collection-card:hover .collection-card-arrow { transform: rotate(45deg); }
+  .collection-card h3 { font-size: 48px; margin-top: 12px; }
+  @media (min-width: 1024px) { .collection-card h3 { font-size: 60px; } }
+  .collection-card .tagline { font-size: 24px; margin-top: 8px; }
+  .collection-card-bottom { display: flex; align-items: flex-end; justify-content: space-between; margin-top: 32px; }
+
+  /* BESTSELLERS */
+  .bestsellers { background: #0A0A0A; color: #F5E6D3; }
+  .bestsellers .label { opacity: 0.7; }
+  .bestsellers-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  @media (min-width: 768px) { .bestsellers-grid { grid-template-columns: repeat(4, 1fr); gap: 24px; } }
+  .bestseller {
+    position: relative; padding: 24px; border-radius: 16px;
+    background: rgba(245,230,211,0.06); border: 1px solid rgba(245,230,211,0.12);
+    transition: transform 0.4s; cursor: pointer;
+  }
+  .bestseller:hover { transform: translateY(-6px); }
+  .bestseller-fav { position: absolute; top: 16px; right: 16px; z-index: 10; padding: 8px; border-radius: 50%; }
+  .bestseller-pin-wrap { display: flex; justify-content: center; margin: 16px 0; }
+  .bestseller .label { margin-top: 16px; opacity: 0.6; }
+  .bestseller-title { font-weight: 600; margin-top: 4px; font-size: 14px; line-height: 1.3; }
+  .bestseller-row { display: flex; align-items: center; justify-content: space-between; margin-top: 12px; }
+  .bestseller-row .display { font-size: 20px; }
+  .add-mini { font-size: 12px; font-weight: 600; padding: 6px 12px; border-radius: 999px; background: #FF4D2E; color: #F5E6D3; transition: transform 0.2s; }
+  .add-mini:hover { transform: scale(1.05); }
+
+  /* DESIGNER CTA */
+  .designer-cta { background: #FF4D2E; color: #F5E6D3; position: relative; overflow: hidden; }
+  .designer-cta-grid { display: grid; gap: 48px; align-items: center; position: relative; z-index: 10; }
+  @media (min-width: 1024px) { .designer-cta-grid { grid-template-columns: 1fr 1fr; } }
+  .designer-cta h2 { font-size: 60px; }
+  @media (min-width: 1024px) { .designer-cta h2 { font-size: 96px; } }
+  .designer-cta p { font-size: 18px; margin-top: 32px; max-width: 460px; line-height: 1.6; opacity: 0.9; }
+  @media (min-width: 1024px) { .designer-cta p { font-size: 20px; } }
+  .designer-cta-visual { position: relative; height: 420px; display: flex; align-items: center; justify-content: center; }
+  .designer-spin-text { position: absolute; width: 380px; height: 380px; }
+
+  /* FOOTER */
+  .footer { padding: 64px 0; border-top: 1px solid #0A0A0A20; background: #F5E6D3; }
+  .footer-display { font-size: clamp(60px, 12vw, 180px); line-height: 1; }
+  .footer-display .accent { color: #FF4D2E; }
+  .footer-grid { display: grid; gap: 32px; margin-top: 48px; padding-top: 32px; border-top: 1px solid #0A0A0A20; }
+  @media (min-width: 768px) { .footer-grid { grid-template-columns: repeat(3, 1fr); } }
+  .footer-col .label { margin-bottom: 12px; }
+  .footer-col .links { display: flex; flex-direction: column; gap: 8px; font-size: 14px; }
+  .footer-form { display: flex; gap: 8px; margin-top: 8px; }
+  .footer-form input { flex: 1; padding: 12px 16px; border-radius: 999px; font-size: 14px; background: transparent; border: 1px solid #0A0A0A40; }
+  .footer-form button { padding: 12px 20px; border-radius: 999px; font-size: 14px; font-weight: 600; background: #0A0A0A; color: #F5E6D3; }
+  .footer-bottom { margin-top: 48px; opacity: 0.6; }
+
+  /* COLLECTION PAGE */
+  .back-btn { display: flex; align-items: center; gap: 8px; margin-bottom: 32px; transition: color 0.2s; }
+  .back-btn:hover { color: #FF4D2E; }
+  .collection-header { margin-bottom: 48px; }
+  @media (min-width: 1024px) { .collection-header { margin-bottom: 64px; } }
+  .collection-header h2 { font-size: 60px; }
+  @media (min-width: 1024px) { .collection-header h2 { font-size: 128px; } }
+  .collection-header h2 .accent { color: #FF4D2E; }
+  .collection-header .tagline { font-size: 24px; margin-top: 16px; color: #FF4D2E; }
+  @media (min-width: 1024px) { .collection-header .tagline { font-size: 30px; } }
+  .collection-header .label { margin-top: 24px; color: #0A0A0AAA; }
+
+  .products-grid { display: grid; gap: 24px; }
+  @media (min-width: 640px) { .products-grid { grid-template-columns: 1fr 1fr; } }
+  @media (min-width: 1024px) { .products-grid { grid-template-columns: repeat(3, 1fr); gap: 32px; } }
+  .product-card {
+    position: relative; padding: 32px; border-radius: 24px;
+    background: rgba(10,10,10,0.03); border: 1px solid rgba(10,10,10,0.08);
+    transition: transform 0.4s cubic-bezier(0.2,0.8,0.2,1);
+  }
+  .product-card:hover { transform: translateY(-6px); }
+  .product-fav { position: absolute; top: 20px; right: 20px; z-index: 10; padding: 10px; border-radius: 50%; box-shadow: 0 2px 6px rgba(0,0,0,0.1); }
+  .product-pin-wrap { display: flex; justify-content: center; margin-bottom: 24px; }
+  .product-title { font-weight: 600; margin-bottom: 8px; font-size: 16px; line-height: 1.3; }
+  .product-row { display: flex; align-items: center; justify-content: space-between; margin-top: 16px; }
+  .product-row .display { font-size: 24px; }
+  .add-btn { padding: 10px 20px; border-radius: 999px; font-size: 14px; font-weight: 600; background: #0A0A0A; color: #F5E6D3; transition: transform 0.2s; }
+  .add-btn:hover { transform: scale(1.05); }
+
+  /* DESIGNER PAGE */
+  .designer-grid { display: grid; gap: 32px; }
+  @media (min-width: 1024px) { .designer-grid { grid-template-columns: 2fr 3fr; gap: 48px; } }
+  .designer-preview-wrap { align-self: flex-start; }
+  @media (min-width: 1024px) { .designer-preview-wrap { position: sticky; top: 112px; } }
+  .designer-preview {
+    background: #0A0A0A; color: #F5E6D3; border-radius: 24px;
+    padding: 40px; text-align: center; position: relative; overflow: hidden;
+  }
+  .designer-preview .label { margin-bottom: 32px; opacity: 0.6; position: relative; z-index: 10; }
+  .designer-preview .pin-frame { display: flex; justify-content: center; margin-bottom: 32px; position: relative; z-index: 10; }
+  .designer-preview .price { position: relative; z-index: 10; }
+  .designer-preview .price-label { margin-bottom: 8px; opacity: 0.6; }
+  .designer-preview .price-num { font-size: 48px; margin-bottom: 24px; }
+  .designer-preview .add-cart-btn {
+    width: 100%; padding: 16px; border-radius: 999px; font-weight: 600; transition: transform 0.2s;
+    background: #FF4D2E; color: #F5E6D3; position: relative; z-index: 10;
+  }
+  .designer-preview .add-cart-btn:hover:not(:disabled) { transform: scale(1.02); }
+  .designer-preview .add-cart-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+
+  .designer-controls { display: flex; flex-direction: column; gap: 24px; }
+  .control-card { padding: 32px; border-radius: 24px; background: rgba(10,10,10,0.03); border: 1px solid rgba(10,10,10,0.08); }
+  .control-card .label { margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+  .control-card.orange { background: #FF4D2E; color: #F5E6D3; position: relative; overflow: hidden; }
+  .control-card.orange .label { position: relative; z-index: 10; }
+  .control-card.orange .display-italic { font-size: 30px; margin-bottom: 16px; position: relative; z-index: 10; }
+
+  .text-input {
+    width: 100%; padding: 16px 20px; border-radius: 16px; font-size: 18px;
+    font-family: 'Fraunces', Georgia, serif; font-weight: 900; letter-spacing: -0.04em;
+    background: #F5E6D3; border: 1px solid rgba(10,10,10,0.13); color: #0A0A0A;
+  }
+  .text-input:focus { outline: 2px solid #FF4D2E; }
+
+  .control-row { display: grid; gap: 24px; margin-top: 24px; }
+  @media (min-width: 640px) { .control-row { grid-template-columns: 1fr 1fr; } }
+  .control-row .label { margin-bottom: 12px; }
+
+  .font-options { display: flex; flex-wrap: wrap; gap: 8px; }
+  .font-btn { padding: 8px 16px; border-radius: 999px; font-size: 14px; font-weight: 600; border: 1.5px solid #0A0A0A; transition: all 0.2s; }
+  .font-btn.active { background: #0A0A0A; color: #F5E6D3; }
+
+  input[type="range"] { -webkit-appearance: none; appearance: none; width: 100%; height: 4px; background: rgba(10,10,10,0.13); border-radius: 999px; }
+  input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 18px; height: 18px; border-radius: 50%; background: #FF4D2E; cursor: pointer; }
+  input[type="range"]::-moz-range-thumb { width: 18px; height: 18px; border-radius: 50%; background: #FF4D2E; cursor: pointer; border: none; }
+
+  .swatches { display: flex; flex-wrap: wrap; gap: 8px; }
+  .swatch { width: 48px; height: 48px; border-radius: 50%; transition: transform 0.2s; border: 1px solid rgba(10,10,10,0.19); }
+  .swatch:hover { transform: scale(1.1); }
+  .swatch.active { border: 3px solid #0A0A0A; box-shadow: 0 0 0 2px #F5E6D3 inset; }
+
+  .upload-empty {
+    width: 100%; padding: 48px; border-radius: 16px; border: 2px dashed rgba(10,10,10,0.19);
+    display: flex; flex-direction: column; align-items: center; gap: 12px; transition: all 0.2s;
+  }
+  .upload-empty:hover { border-color: #FF4D2E; background: rgba(255,77,46,0.03); }
+  .upload-filled { display: flex; align-items: center; gap: 16px; padding: 16px; border-radius: 16px; background: #F5E6D3; }
+  .upload-filled img { width: 80px; height: 80px; object-fit: cover; border-radius: 12px; }
+  .upload-remove { font-size: 14px; color: #FF4D2E; display: flex; align-items: center; gap: 4px; margin-top: 4px; }
+  .upload-remove:hover { text-decoration: underline; }
+
+  .pro-tip { margin-top: 24px; padding: 16px; border-radius: 16px; display: flex; gap: 12px; background: rgba(255,215,0,0.19); border: 1px solid rgba(255,215,0,0.38); }
+  .pro-tip .tip-text { font-size: 12px; line-height: 1.6; color: #0A0A0ACC; }
+
+  .ai-textarea {
+    width: 100%; padding: 16px 20px; border-radius: 16px; font-size: 14px;
+    background: #F5E6D3; color: #0A0A0A; border: none; resize: vertical;
+    position: relative; z-index: 10;
+  }
+
+  /* CART DRAWER */
+  .cart-overlay { position: fixed; inset: 0; z-index: 50; display: none; }
+  .cart-overlay.open { display: flex; }
+  .cart-backdrop { position: absolute; inset: 0; background: rgba(10,10,10,0.5); backdrop-filter: blur(4px); }
+  .cart-panel {
+    margin-left: auto; width: 100%; max-width: 448px; height: 100%; overflow-y: auto;
+    position: relative; background: #F5E6D3;
+  }
+  .cart-inner { padding: 24px; position: relative; z-index: 10; }
+  @media (min-width: 1024px) { .cart-inner { padding: 32px; } }
+  .cart-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 32px; }
+  .cart-header .display { font-size: 36px; margin-top: 4px; }
+  .cart-close { padding: 8px; border-radius: 50%; transition: background 0.2s; }
+  .cart-close:hover { background: rgba(0,0,0,0.05); }
+  .cart-empty { text-align: center; padding: 80px 0; }
+  .cart-empty .display-italic { font-size: 30px; margin-bottom: 16px; opacity: 0.5; }
+  .cart-empty .label { opacity: 0.6; }
+
+  .cart-items { display: flex; flex-direction: column; gap: 12px; margin-bottom: 32px; }
+  .cart-item { display: flex; gap: 16px; padding: 16px; border-radius: 16px; background: rgba(10,10,10,0.024); border: 1px solid rgba(10,10,10,0.07); }
+  .cart-item-info { flex: 1; min-width: 0; }
+  .cart-item-title { font-weight: 600; font-size: 14px; line-height: 1.3; }
+  .cart-item-price { font-size: 14px; margin-top: 4px; opacity: 0.7; }
+  .cart-item-controls { display: flex; align-items: center; gap: 8px; margin-top: 12px; }
+  .qty-btn { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: #0A0A0A; color: #F5E6D3; transition: transform 0.2s; }
+  .qty-btn:hover { transform: scale(1.1); }
+  .qty-num { font-size: 14px; font-weight: 600; width: 24px; text-align: center; }
+  .cart-item-remove { margin-left: auto; padding: 4px; transition: transform 0.2s; }
+  .cart-item-remove:hover { transform: scale(1.1); }
+
+  .cart-summary { border-top: 1px solid #0A0A0A20; padding-top: 24px; }
+  .cart-row { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 14px; opacity: 0.7; }
+  .cart-total { display: flex; justify-content: space-between; margin: 24px 0 32px; }
+  .cart-total .display { font-size: 30px; }
+  .free-ship-note { margin-bottom: 16px; padding: 12px; border-radius: 12px; font-size: 12px; text-align: center; background: rgba(255,215,0,0.19); }
+  .checkout-btn { width: 100%; padding: 16px; border-radius: 999px; font-weight: 600; background: #FF4D2E; color: #F5E6D3; display: flex; align-items: center; justify-content: center; gap: 8px; transition: transform 0.2s; }
+  .checkout-btn:hover { transform: scale(1.02); }
+  .checkout-note { text-align: center; margin-top: 16px; opacity: 0.6; }
+
+  .hidden { display: none !important; }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="header">
+  <div class="container header-inner">
+    <button class="logo" onclick="setView('home')">
+      <div class="logo-circle"></div>
+      <div class="logo-text">
+        <div class="display">PRESS&nbsp;CLUB</div>
+        <div class="label">est. 2026</div>
+      </div>
+    </button>
+    <nav class="nav label">
+      <button onclick="setView('home')">Shop</button>
+      <button onclick="scrollToCollections()">Collections</button>
+      <button onclick="setView('designer')">Make Your Own <i data-lucide="arrow-up-right" style="width:12px;height:12px"></i></button>
+      <button>About</button>
+    </nav>
+    <button class="cart-btn" onclick="openCart()">
+      <i data-lucide="shopping-bag" style="width:16px;height:16px"></i>
+      <span class="cart-count" id="cart-count">0</span>
+    </button>
+  </div>
+</header>
+
+<!-- MARQUEE -->
+<div class="marquee">
+  <div class="marquee-track label" id="marquee-track"></div>
 </div>
-) : large ? (
-<div className=“text-center relative z-10” style={{ fontSize: size * 0.45 }}>{emoji}</div>
-) : (
-<div className="flex flex-col items-center justify-center px-3 text-center w-full h-full relative z-10">
-<div style={{ fontSize: size * 0.2, marginBottom: size * 0.015 }}>{emoji}</div>
-<div style={{
-color: accent, fontFamily: ‘“Fraunces”, Georgia, serif’,
-fontWeight: 900, fontStyle: ‘italic’,
-fontSize: size * 0.082, lineHeight: 1.0, letterSpacing: ‘-0.02em’,
-}}>{title}</div>
-</div>
-)}
-<div className=“absolute inset-[6px] rounded-full pointer-events-none” style={{ border: `1px solid ${finalAccent}25` }} />
-</div>
-);
-};
 
-return (
-<div className=“min-h-screen” style={{ background: ‘#F5E6D3’, fontFamily: ‘“Inter”, sans-serif’, color: ‘#0A0A0A’ }}>
-<style>{`@import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,900;1,9..144,400;1,9..144,900&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap'); body { font-family: 'Inter', sans-serif; -webkit-font-smoothing: antialiased; } .display { font-family: 'Fraunces', Georgia, serif; font-weight: 900; letter-spacing: -0.04em; line-height: 0.92; } .display-italic { font-family: 'Fraunces', Georgia, serif; font-weight: 900; font-style: italic; letter-spacing: -0.04em; line-height: 0.92; } .label { font-family: 'JetBrains Mono', monospace; font-size: 11px; text-transform: uppercase; letter-spacing: 0.12em; font-weight: 500; } @keyframes marquee { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } } .marquee-track { animation: marquee 35s linear infinite; } @keyframes spin-slow { from { transform: rotate(0deg); } to { transform: rotate(360deg); } } .spin-slow { animation: spin-slow 20s linear infinite; } @keyframes float-y { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-12px); } } .float-y { animation: float-y 4s ease-in-out infinite; } .grain::before { content: ''; position: absolute; inset: 0; background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.08 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); pointer-events: none; opacity: 0.6; z-index: 1; } .ticker-divider { display: inline-flex; align-items: center; gap: 32px; padding: 0 32px; } .btn-primary { background: #0A0A0A; color: #F5E6D3; padding: 16px 28px; border-radius: 999px; font-weight: 600; font-size: 15px; transition: all 0.25s cubic-bezier(0.2,0.8,0.2,1); display: inline-flex; align-items: center; gap: 10px; } .btn-primary:hover { background: #FF4D2E; transform: translateY(-2px); } .btn-ghost { background: transparent; color: #0A0A0A; padding: 14px 26px; border-radius: 999px; font-weight: 600; font-size: 15px; border: 1.5px solid #0A0A0A; transition: all 0.25s ease; display: inline-flex; align-items: center; gap: 10px; } .btn-ghost:hover { background: #0A0A0A; color: #F5E6D3; } .product-card { transition: all 0.4s cubic-bezier(0.2,0.8,0.2,1); } .product-card:hover { transform: translateY(-6px); } input[type="range"] { -webkit-appearance: none; height: 4px; background: #0A0A0A22; border-radius: 999px; } input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 18px; height: 18px; border-radius: 50%; background: #FF4D2E; cursor: pointer; }`}</style>
-
-```
-  <header className="sticky top-0 z-40" style={{ background: 'rgba(245,230,211,0.92)', backdropFilter: 'blur(12px)', borderBottom: '1px solid #0A0A0A15' }}>
-    <div className="max-w-[1400px] mx-auto px-6 lg:px-10 py-4 flex items-center justify-between">
-      <button onClick={() => setView('home')} className="flex items-center gap-2.5">
-        <div className="relative w-9 h-9">
-          <div className="absolute inset-0 rounded-full" style={{ background: '#FF4D2E', boxShadow: 'inset 0 -2px 4px rgba(0,0,0,0.2)' }}></div>
-          <div className="absolute inset-[5px] rounded-full" style={{ border: '1px solid #F5E6D344' }}></div>
+<!-- HOME VIEW -->
+<div id="view-home">
+  <!-- HERO -->
+  <section class="hero grain" style="background:#F5E6D3">
+    <div class="container hero-grid">
+      <div class="hero-text">
+        <div class="label" style="margin-bottom:24px;display:flex;align-items:center;gap:12px">
+          <span style="display:inline-block;width:32px;height:1px;background:currentColor"></span>
+          A Pinback Button Co.
         </div>
-        <div>
-          <div className="display text-xl">PRESS&nbsp;CLUB</div>
-          <div className="label" style={{ color: '#0A0A0A88' }}>est. 2026</div>
+        <h1 class="display hero-h1">Wear<br><span class="accent">what you</span><br><span class="display-italic">mean</span><span class="accent">.</span></h1>
+        <div class="hero-row">
+          <p>2.5" pinback buttons for people with opinions. Press the ones we made, or build your own from scratch in our design studio.</p>
+          <div class="hero-cta">
+            <button class="btn-primary" onclick="scrollToCollections()">Shop Buttons <i data-lucide="arrow-right" style="width:16px;height:16px"></i></button>
+            <button class="btn-ghost" onclick="setView('designer')"><i data-lucide="sparkles" style="width:14px;height:14px"></i> Design Yours</button>
+          </div>
         </div>
-      </button>
-      <nav className="hidden md:flex items-center gap-9 label">
-        <button onClick={() => setView('home')} className="hover:text-[#FF4D2E] transition">Shop</button>
-        <button onClick={() => { setView('home'); setTimeout(() => document.getElementById('collections')?.scrollIntoView({ behavior: 'smooth' }), 50); }} className="hover:text-[#FF4D2E] transition">Collections</button>
-        <button onClick={() => setView('designer')} className="hover:text-[#FF4D2E] transition flex items-center gap-1.5">Make Your Own <ArrowUpRight size={12} /></button>
-        <a className="hover:text-[#FF4D2E] transition cursor-pointer">About</a>
-      </nav>
-      <button onClick={() => setShowCart(true)} className="flex items-center gap-2 px-4 py-2.5 rounded-full transition hover:scale-105" style={{ background: '#0A0A0A', color: '#F5E6D3' }}>
-        <ShoppingBag size={16} /><span className="text-sm font-semibold">{cartCount}</span>
-      </button>
+      </div>
+      <div class="hero-pins" id="hero-pins"></div>
     </div>
-  </header>
+    <div class="hero-stats">
+      <div class="container hero-stats-grid">
+        <div class="hero-stat"><div class="display">$5</div><div class="label">per button</div></div>
+        <div class="hero-stat"><div class="display">2.5"</div><div class="label">diameter</div></div>
+        <div class="hero-stat"><div class="display">48hr</div><div class="label">turnaround</div></div>
+        <div class="hero-stat"><div class="display">∞</div><div class="label">customs</div></div>
+      </div>
+    </div>
+  </section>
 
-  <div className="overflow-hidden py-3" style={{ background: '#0A0A0A', color: '#F5E6D3' }}>
-    <div className="flex marquee-track whitespace-nowrap label">
-      {[...Array(2)].map((_, i) => (
-        <div key={i} className="flex">
-          <span className="ticker-divider">★ FREE US SHIPPING OVER $25</span>
-          <span className="ticker-divider">— SHIPS IN 48 HOURS —</span>
-          <span className="ticker-divider">★ 2.5" PINBACK BUTTONS</span>
-          <span className="ticker-divider">— PRESSED BY HAND —</span>
-          <span className="ticker-divider">★ DESIGN YOUR OWN</span>
-          <span className="ticker-divider">— UNLIMITED COLORWAYS —</span>
+  <!-- COLLECTIONS -->
+  <section id="collections" class="section">
+    <div class="container">
+      <div class="section-header">
+        <div>
+          <div class="label" style="margin-bottom:16px">— Collections / 05</div>
+          <h2 class="display">Pick a<br><span class="display-italic" style="color:#FF4D2E">flavor.</span></h2>
         </div>
-      ))}
+        <div class="section-meta">Five worlds. Thirty-three designs. Zero filler. Tap one to see what's inside.</div>
+      </div>
+      <div class="collections-grid" id="collections-grid"></div>
+    </div>
+  </section>
+
+  <!-- BESTSELLERS -->
+  <section class="section bestsellers">
+    <div class="container">
+      <div class="section-header">
+        <div>
+          <div class="label" style="margin-bottom:16px">— Top Sellers</div>
+          <h2 class="display">Pinned<br><span class="display-italic" style="color:#FF4D2E">most.</span></h2>
+        </div>
+      </div>
+      <div class="bestsellers-grid" id="bestsellers-grid"></div>
+    </div>
+  </section>
+
+  <!-- DESIGNER CTA -->
+  <section class="section designer-cta grain">
+    <div class="container designer-cta-grid">
+      <div>
+        <div class="label" style="margin-bottom:24px;opacity:0.8">— The Design Studio</div>
+        <h2 class="display">Or make<br><span class="display-italic">it weird.</span></h2>
+        <p>Upload your art. Type some text. Pick colors. Or describe a vibe and let our AI draw it. Live preview shows the actual button.</p>
+        <button class="btn-primary" style="margin-top:40px" onclick="setView('designer')">
+          <i data-lucide="sparkles" style="width:18px;height:18px"></i> Open the Studio <i data-lucide="arrow-right" style="width:16px;height:16px"></i>
+        </button>
+      </div>
+      <div class="designer-cta-visual">
+        <div class="spin-slow designer-spin-text">
+          <svg viewBox="0 0 380 380" width="100%" height="100%">
+            <defs>
+              <path id="circ" d="M 190,190 m -160,0 a 160,160 0 1,1 320,0 a 160,160 0 1,1 -320,0" />
+            </defs>
+            <text class="label" style="fill:#F5E6D3;font-size:18px;letter-spacing:0.3em">
+              <textPath href="#circ">★ DESIGN ★ UPLOAD ★ AI MAGIC ★ PRINT ★ PIN ★ REPEAT ★ DESIGN ★ UPLOAD ★ AI MAGIC ★ PRINT ★</textPath>
+            </text>
+          </svg>
+        </div>
+        <div class="float-y" id="cta-pin"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="container">
+      <div class="display footer-display">PRESS<span class="accent">.</span></div>
+      <div class="footer-grid">
+        <div class="footer-col">
+          <div class="label">Shop</div>
+          <div class="links"><div>Collections</div><div>Bestsellers</div><div>Design Studio</div></div>
+        </div>
+        <div class="footer-col">
+          <div class="label">Help</div>
+          <div class="links"><div>Shipping</div><div>Returns</div><div>Contact</div></div>
+        </div>
+        <div class="footer-col">
+          <div class="label">Get on the list</div>
+          <div class="footer-form">
+            <input placeholder="email@whatever.com" type="email">
+            <button>→</button>
+          </div>
+        </div>
+      </div>
+      <div class="label footer-bottom">© 2026 Press Club · Pressed by hand · Shipped with love</div>
+    </div>
+  </footer>
+</div>
+
+<!-- COLLECTION VIEW -->
+<div id="view-collection" class="hidden">
+  <section class="section" style="padding-top:48px">
+    <div class="container">
+      <button class="back-btn label" onclick="setView('home')">← Back to all</button>
+      <div class="collection-header">
+        <div class="label" style="margin-bottom:12px" id="col-number"></div>
+        <h2 class="display" id="col-title"></h2>
+        <div class="display-italic tagline" id="col-tagline"></div>
+        <div class="label" id="col-meta"></div>
+      </div>
+      <div class="products-grid" id="products-grid"></div>
+    </div>
+  </section>
+</div>
+
+<!-- DESIGNER VIEW -->
+<div id="view-designer" class="hidden">
+  <section class="section" style="padding-top:48px">
+    <div class="container">
+      <button class="back-btn label" onclick="setView('home')">← Back to shop</button>
+      <div style="margin-bottom:48px">
+        <div class="label" style="margin-bottom:12px">— The Design Studio</div>
+        <h2 class="display" style="font-size:60px">Make<br><span class="display-italic" style="color:#FF4D2E">yours.</span></h2>
+      </div>
+      <div class="designer-grid">
+        <div class="designer-preview-wrap">
+          <div class="designer-preview grain">
+            <div class="label">Live preview</div>
+            <div class="pin-frame" id="designer-preview-pin"></div>
+            <div class="price">
+              <div class="label price-label">2.5" · pinback · $6</div>
+              <div class="display price-num">$6.00</div>
+              <button class="add-cart-btn" id="add-custom-btn" onclick="addCustomToCart()" disabled>Add to Cart →</button>
+            </div>
+          </div>
+        </div>
+        <div class="designer-controls">
+          <!-- TEXT -->
+          <div class="control-card">
+            <div class="label"><i data-lucide="type" style="width:12px;height:12px"></i> Text</div>
+            <input type="text" class="text-input" id="design-text" placeholder="Type something punchy" maxlength="40" oninput="updatePreview()">
+            <div class="control-row">
+              <div>
+                <div class="label">Typeface</div>
+                <div class="font-options" id="font-options"></div>
+              </div>
+              <div>
+                <div class="label" id="size-label">Size · 28px</div>
+                <input type="range" min="14" max="48" value="28" id="text-size" oninput="updateSize()">
+              </div>
+            </div>
+          </div>
+
+          <!-- COLORS -->
+          <div class="control-card">
+            <div class="label">Colors</div>
+            <div class="control-row">
+              <div>
+                <div class="label" style="opacity:0.7;font-size:11px">Background</div>
+                <div class="swatches" id="bg-swatches"></div>
+              </div>
+              <div>
+                <div class="label" style="opacity:0.7;font-size:11px">Text / Accent</div>
+                <div class="swatches" id="accent-swatches"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- UPLOAD -->
+          <div class="control-card">
+            <div class="label"><i data-lucide="upload" style="width:12px;height:12px"></i> Upload Art</div>
+            <input type="file" accept="image/*" id="file-input" style="display:none" onchange="handleUpload(event)">
+            <div id="upload-empty" class="upload-empty" onclick="document.getElementById('file-input').click()">
+              <i data-lucide="image" style="width:28px;height:28px"></i>
+              <span style="font-size:14px;font-weight:500">Drop a file or click to browse</span>
+              <span class="label" style="opacity:0.5">PNG · JPG · SVG · max 5MB</span>
+            </div>
+            <div id="upload-filled" class="hidden">
+              <div class="upload-filled">
+                <img id="upload-preview" src="" alt="upload">
+                <div style="flex:1">
+                  <div style="font-size:14px;font-weight:600">Uploaded ✓</div>
+                  <button class="upload-remove" onclick="removeUpload()">
+                    <i data-lucide="trash-2" style="width:14px;height:14px"></i> Remove
+                  </button>
+                </div>
+              </div>
+              <div style="margin-top:24px">
+                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+                  <div class="label">Image Size</div>
+                  <div class="label" id="img-size-label" style="color:#FF4D2E">70%</div>
+                </div>
+                <input type="range" min="20" max="95" value="70" id="img-size" oninput="updateImgSize()">
+                <div style="display:flex;justify-content:space-between;margin-top:8px" class="label" >
+                  <span style="opacity:0.5">Small</span>
+                  <span style="opacity:0.5">Fill</span>
+                </div>
+              </div>
+              <div class="pro-tip">
+                <i data-lucide="info" style="width:16px;height:16px;flex-shrink:0;margin-top:2px"></i>
+                <div>
+                  <div class="label" style="margin-bottom:4px">Pro Tip</div>
+                  <div class="tip-text">For the cleanest look, upload a PNG with a transparent background. Need to remove a background? Try a free tool like <strong>remove.bg</strong> before uploading.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- AI -->
+          <div class="control-card orange grain">
+            <div class="label"><i data-lucide="sparkles" style="width:12px;height:12px"></i> AI Magic</div>
+            <div class="display-italic">Describe a vibe.</div>
+            <textarea class="ai-textarea" id="ai-prompt" placeholder="a sleepy raccoon drinking coffee, retro illustration" rows="2"></textarea>
+            <button class="btn-primary" style="margin-top:16px;position:relative;z-index:10;padding:12px 24px;font-size:14px" id="ai-gen-btn" disabled>
+              <i data-lucide="sparkles" style="width:14px;height:14px"></i> Generate
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- CART DRAWER -->
+<div id="cart-drawer" class="cart-overlay">
+  <div class="cart-backdrop" onclick="closeCart()"></div>
+  <div class="cart-panel grain">
+    <div class="cart-inner">
+      <div class="cart-header">
+        <div>
+          <div class="label">Your Bag</div>
+          <div class="display" id="cart-header-count">0 items</div>
+        </div>
+        <button class="cart-close" onclick="closeCart()"><i data-lucide="x" style="width:20px;height:20px"></i></button>
+      </div>
+      <div id="cart-body"></div>
     </div>
   </div>
-
-  {view === 'home' && (
-    <>
-      <section className="relative overflow-hidden grain" style={{ background: '#F5E6D3' }}>
-        <div className="max-w-[1400px] mx-auto px-6 lg:px-10 pt-12 lg:pt-20 pb-16 relative z-10">
-          <div className="grid lg:grid-cols-12 gap-8 items-center">
-            <div className="lg:col-span-7">
-              <div className="label mb-6 flex items-center gap-3">
-                <span className="inline-block w-8 h-px bg-current"></span>A Pinback Button Co.
-              </div>
-              <h1 className="display text-[clamp(60px,11vw,180px)]">
-                Wear<br/>
-                <span style={{ color: '#FF4D2E' }}>what you</span><br/>
-                <span className="display-italic">mean</span><span style={{ color: '#FF4D2E' }}>.</span>
-              </h1>
-              <div className="grid sm:grid-cols-2 gap-8 mt-10 max-w-2xl">
-                <p className="text-base leading-relaxed" style={{ color: '#0A0A0ACC' }}>
-                  2.5" pinback buttons for people with opinions. Press the ones we made, or build your own from scratch in our design studio.
-                </p>
-                <div className="flex flex-wrap gap-3 items-start">
-                  <button onClick={() => document.getElementById('collections')?.scrollIntoView({ behavior: 'smooth' })} className="btn-primary">
-                    Shop Buttons <ArrowRight size={16} />
-                  </button>
-                  <button onClick={() => setView('designer')} className="btn-ghost">
-                    <Sparkles size={14} /> Design Yours
-                  </button>
-                </div>
-              </div>
-            </div>
-            <div className="lg:col-span-5 relative h-[480px] lg:h-[600px]">
-              <div className="absolute float-y" style={{ top: '8%', left: '10%' }}>
-                <ButtonPreview bg="#FF4D2E" accent="#0A0A0A" emoji="🌵" title="AZ Hits Different" size={180} />
-              </div>
-              <div className="absolute float-y" style={{ top: '38%', right: '5%', animationDelay: '1.3s' }}>
-                <ButtonPreview bg="#0A0A0A" accent="#FFD700" emoji="✨" large size={150} />
-              </div>
-              <div className="absolute float-y" style={{ bottom: '12%', left: '20%', animationDelay: '2.1s' }}>
-                <ButtonPreview bg="#FFD700" accent="#0A0A0A" emoji="🙄" title="Ugh, As If" size={170} />
-              </div>
-              <div className="absolute float-y" style={{ top: '5%', right: '25%', animationDelay: '0.6s' }}>
-                <ButtonPreview bg="#1B4332" accent="#F5E6D3" emoji="🌈" title="They/Them" size={130} />
-              </div>
-            </div>
-          </div>
-        </div>
-        <div className="border-t" style={{ borderColor: '#0A0A0A20' }}>
-          <div className="max-w-[1400px] mx-auto px-6 lg:px-10 py-6 grid grid-cols-2 md:grid-cols-4 gap-6">
-            <div><div className="display text-4xl">$5</div><div className="label mt-1" style={{ color: '#0A0A0A88' }}>per button</div></div>
-            <div><div className="display text-4xl">2.5"</div><div className="label mt-1" style={{ color: '#0A0A0A88' }}>diameter</div></div>
-            <div><div className="display text-4xl">48hr</div><div className="label mt-1" style={{ color: '#0A0A0A88' }}>turnaround</div></div>
-            <div><div className="display text-4xl">∞</div><div className="label mt-1" style={{ color: '#0A0A0A88' }}>customs</div></div>
-          </div>
-        </div>
-      </section>
-
-      <section id="collections" className="py-20 lg:py-28">
-        <div className="max-w-[1400px] mx-auto px-6 lg:px-10">
-          <div className="flex items-end justify-between mb-12 lg:mb-16">
-            <div>
-              <div className="label mb-4">— Collections / 05</div>
-              <h2 className="display text-5xl lg:text-7xl">Pick a<br /><span className="display-italic" style={{ color: '#FF4D2E' }}>flavor.</span></h2>
-            </div>
-            <div className="hidden md:block max-w-xs text-sm leading-relaxed" style={{ color: '#0A0A0AAA' }}>
-              Five worlds. Thirty-three designs. Zero filler. Tap one to see what's inside.
-            </div>
-          </div>
-          <div className="grid md:grid-cols-2 gap-6">
-            {collections.map((col, idx) => {
-              const heroBtn = col.buttons[0];
-              return (
-                <button key={col.id} onClick={() => { setActiveCollection(col); setView('collection'); window.scrollTo(0, 0); }}
-                  className="product-card group relative text-left rounded-3xl overflow-hidden grain"
-                  style={{ background: idx % 2 === 0 ? '#0A0A0A' : '#FF4D2E', color: '#F5E6D3', minHeight: '420px' }}>
-                  <div className="relative z-10 p-8 lg:p-10 h-full flex flex-col justify-between">
-                    <div className="flex justify-between items-start">
-                      <div>
-                        <div className="label opacity-70">Collection / {col.number}</div>
-                        <h3 className="display text-5xl lg:text-6xl mt-3">{col.name}</h3>
-                        <div className="display-italic text-2xl mt-2" style={{ color: idx % 2 === 0 ? '#FFD700' : '#0A0A0A' }}>{col.tagline}</div>
-                      </div>
-                      <div className="w-12 h-12 rounded-full flex items-center justify-center transition-transform group-hover:rotate-45" style={{ background: '#F5E6D3', color: '#0A0A0A' }}>
-                        <ArrowUpRight size={20} />
-                      </div>
-                    </div>
-                    <div className="flex items-end justify-between mt-8">
-                      <div className="label opacity-70">{col.buttons.length} designs · from $5</div>
-                      <div className="float-y" style={{ animationDelay: `${idx * 0.3}s` }}>
-                        <ButtonPreview {...heroBtn} size={170} />
-                      </div>
-                    </div>
-                  </div>
-                </button>
-              );
-            })}
-          </div>
-        </div>
-      </section>
-
-      <section className="py-20 lg:py-28" style={{ background: '#0A0A0A', color: '#F5E6D3' }}>
-        <div className="max-w-[1400px] mx-auto px-6 lg:px-10">
-          <div className="flex items-end justify-between mb-12">
-            <div>
-              <div className="label mb-4 opacity-70">— Top Sellers</div>
-              <h2 className="display text-5xl lg:text-7xl">Pinned<br /><span className="display-italic" style={{ color: '#FF4D2E' }}>most.</span></h2>
-            </div>
-          </div>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 lg:gap-6">
-            {bestsellers.map((btn, idx) => (
-              <div key={idx} className="product-card relative rounded-2xl p-6 group cursor-pointer"
-                style={{ background: '#F5E6D310', border: '1px solid #F5E6D320' }}>
-                <button onClick={(e) => { e.stopPropagation(); toggleFavorite(btn.id); }}
-                  className="absolute top-4 right-4 z-10 p-2 rounded-full transition"
-                  style={{ background: favorites.has(btn.id) ? '#FF4D2E' : '#F5E6D310' }}>
-                  <Heart size={14} fill={favorites.has(btn.id) ? '#F5E6D3' : 'none'} color="#F5E6D3" />
-                </button>
-                <div className="flex justify-center my-4"><ButtonPreview {...btn} size={150} /></div>
-                <div className="label opacity-60 mt-4">{btn.collection}</div>
-                <div className="font-semibold mt-1 text-sm leading-tight">{btn.title}</div>
-                <div className="flex items-center justify-between mt-3">
-                  <span className="display text-xl">$5</span>
-                  <button onClick={() => addToCart(btn)} className="text-xs font-semibold px-3 py-1.5 rounded-full transition" style={{ background: '#FF4D2E', color: '#F5E6D3' }}>Add +</button>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <section className="py-20 lg:py-32 relative overflow-hidden grain" style={{ background: '#FF4D2E', color: '#F5E6D3' }}>
-        <div className="max-w-[1400px] mx-auto px-6 lg:px-10 relative z-10">
-          <div className="grid lg:grid-cols-2 gap-12 items-center">
-            <div>
-              <div className="label mb-6 opacity-80">— The Design Studio</div>
-              <h2 className="display text-6xl lg:text-8xl">Or make<br /><span className="display-italic">it weird.</span></h2>
-              <p className="text-lg lg:text-xl mt-8 max-w-md leading-relaxed opacity-90">
-                Upload your art. Type some text. Pick colors. Or describe a vibe and let our AI draw it. Live preview shows the actual button.
-              </p>
-              <button onClick={() => setView('designer')} className="mt-10 inline-flex items-center gap-3 px-7 py-4 rounded-full font-semibold transition hover:scale-105" style={{ background: '#0A0A0A', color: '#F5E6D3' }}>
-                <Sparkles size={18} /> Open the Studio <ArrowRight size={16} />
-              </button>
-            </div>
-            <div className="relative h-[420px] flex items-center justify-center">
-              <div className="absolute spin-slow" style={{ width: '380px', height: '380px' }}>
-                <svg viewBox="0 0 380 380" className="w-full h-full">
-                  <defs>
-                    <path id="circ" d="M 190,190 m -160,0 a 160,160 0 1,1 320,0 a 160,160 0 1,1 -320,0" />
-                  </defs>
-                  <text className="label" style={{ fill: '#F5E6D3', fontSize: '18px', letterSpacing: '0.3em' }}>
-                    <textPath href="#circ">★ DESIGN ★ UPLOAD ★ AI MAGIC ★ PRINT ★ PIN ★ REPEAT ★ DESIGN ★ UPLOAD ★ AI MAGIC ★ PRINT ★</textPath>
-                  </text>
-                </svg>
-              </div>
-              <div className="float-y">
-                <ButtonPreview custom customText="MAKE IT WEIRD" customBg="#FFD700" customAccent="#0A0A0A" customSize={20} customFont="display" size={220} />
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <footer className="py-16 border-t" style={{ borderColor: '#0A0A0A20', background: '#F5E6D3' }}>
-        <div className="max-w-[1400px] mx-auto px-6 lg:px-10">
-          <div className="display text-[clamp(60px,12vw,180px)] leading-none">PRESS<span style={{ color: '#FF4D2E' }}>.</span></div>
-          <div className="grid md:grid-cols-3 gap-8 mt-12 pt-8 border-t" style={{ borderColor: '#0A0A0A20' }}>
-            <div>
-              <div className="label mb-3">Shop</div>
-              <div className="space-y-2 text-sm"><div>Collections</div><div>Bestsellers</div><div>Design Studio</div></div>
-            </div>
-            <div>
-              <div className="label mb-3">Help</div>
-              <div className="space-y-2 text-sm"><div>Shipping</div><div>Returns</div><div>Contact</div></div>
-            </div>
-            <div>
-              <div className="label mb-3">Get on the list</div>
-              <div className="flex gap-2 mt-2">
-                <input placeholder="email@whatever.com" className="flex-1 px-4 py-3 rounded-full text-sm bg-transparent border" style={{ borderColor: '#0A0A0A40' }} />
-                <button className="px-5 py-3 rounded-full text-sm font-semibold" style={{ background: '#0A0A0A', color: '#F5E6D3' }}>→</button>
-              </div>
-            </div>
-          </div>
-          <div className="label mt-12 opacity-60">© 2026 Press Club · Pressed by hand · Shipped with love</div>
-        </div>
-      </footer>
-    </>
-  )}
-
-  {view === 'collection' && activeCollection && (
-    <section className="py-12 lg:py-16 min-h-screen">
-      <div className="max-w-[1400px] mx-auto px-6 lg:px-10">
-        <button onClick={() => setView('home')} className="label mb-8 flex items-center gap-2 hover:text-[#FF4D2E] transition">← Back to all</button>
-        <div className="mb-12 lg:mb-16">
-          <div className="label mb-3">Collection / {activeCollection.number}</div>
-          <h2 className="display text-6xl lg:text-9xl">{activeCollection.name}<span style={{ color: '#FF4D2E' }}>.</span></h2>
-          <div className="display-italic text-2xl lg:text-3xl mt-4" style={{ color: '#FF4D2E' }}>{activeCollection.tagline}</div>
-          <div className="label mt-6" style={{ color: '#0A0A0AAA' }}>{activeCollection.buttons.length} designs · $5 each · 2.5"</div>
-        </div>
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
-          {activeCollection.buttons.map(btn => (
-            <div key={btn.id} className="product-card group relative rounded-3xl p-8" style={{ background: '#0A0A0A08', border: '1px solid #0A0A0A15' }}>
-              <button onClick={() => toggleFavorite(btn.id)} className="absolute top-5 right-5 z-10 p-2.5 rounded-full transition"
-                style={{ background: favorites.has(btn.id) ? '#FF4D2E' : '#F5E6D3', boxShadow: '0 2px 6px rgba(0,0,0,0.1)' }}>
-                <Heart size={14} fill={favorites.has(btn.id) ? '#F5E6D3' : 'none'} color={favorites.has(btn.id) ? '#F5E6D3' : '#0A0A0A'} />
-              </button>
-              <div className="flex justify-center mb-6"><ButtonPreview {...btn} size={220} /></div>
-              <div className="font-semibold mb-2 text-base leading-tight">{btn.title}</div>
-              <div className="flex items-center justify-between mt-4">
-                <span className="display text-2xl">$5</span>
-                <button onClick={() => addToCart(btn)} className="px-5 py-2.5 rounded-full text-sm font-semibold transition hover:scale-105" style={{ background: '#0A0A0A', color: '#F5E6D3' }}>Add to Cart</button>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-    </section>
-  )}
-
-  {view === 'designer' && (
-    <section className="py-12 lg:py-16 min-h-screen">
-      <div className="max-w-[1400px] mx-auto px-6 lg:px-10">
-        <button onClick={() => setView('home')} className="label mb-8 flex items-center gap-2 hover:text-[#FF4D2E] transition">← Back to shop</button>
-        <div className="mb-12">
-          <div className="label mb-3">— The Design Studio</div>
-          <h2 className="display text-6xl lg:text-8xl">Make<br /><span className="display-italic" style={{ color: '#FF4D2E' }}>yours.</span></h2>
-        </div>
-        <div className="grid lg:grid-cols-5 gap-8 lg:gap-12">
-          <div className="lg:col-span-2 lg:sticky lg:top-28 self-start">
-            <div className="rounded-3xl p-10 text-center grain relative overflow-hidden" style={{ background: '#0A0A0A', color: '#F5E6D3' }}>
-              <div className="label mb-8 opacity-60 relative z-10">Live preview</div>
-              <div className="flex justify-center mb-8 relative z-10">
-                <ButtonPreview custom customText={designText} customImg={uploadedImage} customBg={bgColor} customAccent={designColor} customSize={textSize} customFont={fontFamily} customImgSize={imageSize} size={300} />
-              </div>
-              <div className="label mb-2 opacity-60 relative z-10">2.5" · pinback · $6</div>
-              <div className="display text-5xl mb-6 relative z-10">$6.00</div>
-              <button onClick={() => addToCart({
-                id: `custom-${Date.now()}`, title: designText || 'Custom Button',
-                bg: bgColor, accent: designColor, customImg: uploadedImage, customText: designText,
-                customFont: fontFamily, customSize: textSize, customImgSize: imageSize,
-              }, 1, true)}
-                disabled={!designText && !uploadedImage}
-                className="w-full py-4 rounded-full font-semibold transition hover:scale-[1.02] disabled:opacity-30 disabled:cursor-not-allowed relative z-10"
-                style={{ background: '#FF4D2E', color: '#F5E6D3' }}>
-                Add to Cart →
-              </button>
-            </div>
-          </div>
-          <div className="lg:col-span-3 space-y-6">
-            <div className="rounded-3xl p-8" style={{ background: '#0A0A0A08', border: '1px solid #0A0A0A15' }}>
-              <div className="label mb-4 flex items-center gap-2"><Type size={12} /> Text</div>
-              <input type="text" value={designText} onChange={(e) => setDesignText(e.target.value)} placeholder="Type something punchy" maxLength={40}
-                className="w-full px-5 py-4 rounded-2xl text-lg display"
-                style={{ background: '#F5E6D3', border: '1px solid #0A0A0A20', color: '#0A0A0A' }} />
-              <div className="mt-6 grid sm:grid-cols-2 gap-6">
-                <div>
-                  <div className="label mb-3">Typeface</div>
-                  <div className="flex gap-2 flex-wrap">
-                    {[{ id: 'display', label: 'Display' }, { id: 'serif', label: 'Serif' }, { id: 'sans', label: 'Sans' }, { id: 'mono', label: 'Mono' }].map(f => (
-                      <button key={f.id} onClick={() => setFontFamily(f.id)} className="px-4 py-2 rounded-full text-sm font-semibold transition"
-                        style={{ background: fontFamily === f.id ? '#0A0A0A' : 'transparent', color: fontFamily === f.id ? '#F5E6D3' : '#0A0A0A', border: '1.5px solid #0A0A0A' }}>
-                        {f.label}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-                <div>
-                  <div className="label mb-3">Size · {textSize}px</div>
-                  <input type="range" min="14" max="48" value={textSize} onChange={(e) => setTextSize(Number(e.target.value))} className="w-full" />
-                </div>
-              </div>
-            </div>
-            <div className="rounded-3xl p-8" style={{ background: '#0A0A0A08', border: '1px solid #0A0A0A15' }}>
-              <div className="label mb-4">Colors</div>
-              <div className="grid sm:grid-cols-2 gap-6">
-                <div>
-                  <div className="text-xs mb-3 opacity-70">Background</div>
-                  <div className="flex flex-wrap gap-2">
-                    {['#F5E6D3', '#FF4D2E', '#FFD700', '#0A0A0A', '#1B4332', '#5A3D8A', '#3D6B8A', '#C83D8A'].map(c => (
-                      <button key={c} onClick={() => setBgColor(c)} className="w-12 h-12 rounded-full transition hover:scale-110"
-                        style={{ background: c, border: bgColor === c ? '3px solid #0A0A0A' : '1px solid #0A0A0A30', boxShadow: bgColor === c ? '0 0 0 2px #F5E6D3 inset' : 'none' }} />
-                    ))}
-                  </div>
-                </div>
-                <div>
-                  <div className="text-xs mb-3 opacity-70">Text / Accent</div>
-                  <div className="flex flex-wrap gap-2">
-                    {['#0A0A0A', '#F5E6D3', '#FF4D2E', '#FFD700', '#1B4332', '#5A3D8A', '#3D6B8A', '#C83D8A'].map(c => (
-                      <button key={c} onClick={() => setDesignColor(c)} className="w-12 h-12 rounded-full transition hover:scale-110"
-                        style={{ background: c, border: designColor === c ? '3px solid #0A0A0A' : '1px solid #0A0A0A30', boxShadow: designColor === c ? '0 0 0 2px #F5E6D3 inset' : 'none' }} />
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div className="rounded-3xl p-8" style={{ background: '#0A0A0A08', border: '1px solid #0A0A0A15' }}>
-              <div className="label mb-4 flex items-center gap-2"><Upload size={12} /> Upload Art</div>
-              <input ref={fileInputRef} type="file" accept="image/*" onChange={handleImageUpload} className="hidden" />
-              {uploadedImage ? (
-                <>
-                  <div className="flex items-center gap-4 p-4 rounded-2xl" style={{ background: '#F5E6D3' }}>
-                    <img src={uploadedImage} alt="upload" className="w-20 h-20 object-cover rounded-xl" />
-                    <div className="flex-1">
-                      <div className="text-sm font-semibold">Uploaded ✓</div>
-                      <button onClick={() => { setUploadedImage(null); if (fileInputRef.current) fileInputRef.current.value = ''; }}
-                        className="text-sm flex items-center gap-1 mt-1 hover:underline" style={{ color: '#FF4D2E' }}>
-                        <Trash2 size={14} /> Remove
-                      </button>
-                    </div>
-                  </div>
-                  <div className="mt-6">
-                    <div className="flex items-center justify-between mb-3">
-                      <div className="label">Image Size</div>
-                      <div className="label" style={{ color: '#FF4D2E' }}>{imageSize}%</div>
-                    </div>
-                    <input
-                      type="range"
-                      min="20"
-                      max="95"
-                      value={imageSize}
-                      onChange={(e) => setImageSize(Number(e.target.value))}
-                      className="w-full"
-                    />
-                    <div className="flex justify-between mt-2 label opacity-50">
-                      <span>Small</span>
-                      <span>Fill</span>
-                    </div>
-                  </div>
-
-                  {/* Pro Tip */}
-                  <div className="mt-6 p-4 rounded-2xl flex gap-3" style={{ background: '#FFD70030', border: '1px solid #FFD70060' }}>
-                    <div className="flex-shrink-0 mt-0.5">
-                      <Info size={16} style={{ color: '#0A0A0A' }} />
-                    </div>
-                    <div className="flex-1">
-                      <div className="label mb-1">Pro Tip</div>
-                      <div className="text-xs leading-relaxed" style={{ color: '#0A0A0ACC' }}>
-                        For the cleanest look, upload a PNG with a transparent background. Need to remove a background? Try a free tool like <span className="font-semibold">remove.bg</span> before uploading.
-                      </div>
-                    </div>
-                  </div>
-                </>
-              ) : (
-                <button onClick={() => fileInputRef.current?.click()}
-                  className="w-full py-12 rounded-2xl border-2 border-dashed flex flex-col items-center gap-3 transition hover:border-[#FF4D2E] hover:bg-[#FF4D2E08]"
-                  style={{ borderColor: '#0A0A0A30' }}>
-                  <ImageIcon size={28} />
-                  <span className="text-sm font-medium">Drop a file or click to browse</span>
-                  <span className="label opacity-50">PNG · JPG · SVG · max 5MB</span>
-                </button>
-              )}
-            </div>
-            <div className="rounded-3xl p-8 relative overflow-hidden grain" style={{ background: '#FF4D2E', color: '#F5E6D3' }}>
-              <div className="label mb-2 flex items-center gap-2 relative z-10"><Sparkles size={12} /> AI Magic</div>
-              <div className="display-italic text-3xl mb-4 relative z-10">Describe a vibe.</div>
-              <textarea value={aiPrompt} onChange={(e) => setAiPrompt(e.target.value)}
-                placeholder="a sleepy raccoon drinking coffee, retro illustration" rows={2}
-                className="w-full px-5 py-4 rounded-2xl text-sm relative z-10"
-                style={{ background: '#F5E6D3', color: '#0A0A0A', border: 'none' }} />
-              <button disabled={!aiPrompt}
-                className="mt-4 px-6 py-3 rounded-full font-semibold text-sm transition hover:scale-105 disabled:opacity-40 flex items-center gap-2 relative z-10"
-                style={{ background: '#0A0A0A', color: '#F5E6D3' }}>
-                <Sparkles size={14} /> Generate
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-  )}
-
-  {showCart && (
-    <div className="fixed inset-0 z-50 flex" onClick={() => setShowCart(false)}>
-      <div className="absolute inset-0" style={{ background: 'rgba(10,10,10,0.5)', backdropFilter: 'blur(4px)' }} />
-      <div className="ml-auto w-full max-w-md h-full overflow-y-auto relative grain" style={{ background: '#F5E6D3' }} onClick={(e) => e.stopPropagation()}>
-        <div className="p-6 lg:p-8 relative z-10">
-          <div className="flex items-center justify-between mb-8">
-            <div>
-              <div className="label">Your Bag</div>
-              <div className="display text-4xl mt-1">{cartCount} {cartCount === 1 ? 'item' : 'items'}</div>
-            </div>
-            <button onClick={() => setShowCart(false)} className="p-2 rounded-full transition hover:bg-black/5"><X size={20} /></button>
-          </div>
-          {cart.length === 0 ? (
-            <div className="text-center py-20">
-              <div className="display-italic text-3xl mb-4 opacity-50">empty.</div>
-              <div className="label opacity-60">Add some buttons</div>
-            </div>
-          ) : (
-            <>
-              <div className="space-y-3 mb-8">
-                {cart.map(item => (
-                  <div key={item.id} className="flex gap-4 p-4 rounded-2xl" style={{ background: '#0A0A0A06', border: '1px solid #0A0A0A12' }}>
-                    <ButtonPreview {...item} custom={item.custom} customText={item.customText} customImg={item.customImg} customBg={item.bg} customAccent={item.accent} customSize={item.customSize} customFont={item.customFont} customImgSize={item.customImgSize} size={70} />
-                    <div className="flex-1 min-w-0">
-                      <div className="font-semibold text-sm leading-tight">{item.title || 'Custom Button'}</div>
-                      {item.custom && <div className="label mt-0.5" style={{ color: '#FF4D2E' }}>Your Design</div>}
-                      <div className="text-sm mt-1 opacity-70">${item.price.toFixed(2)}</div>
-                      <div className="flex items-center gap-2 mt-3">
-                        <button onClick={() => updateQty(item.id, -1)} className="w-7 h-7 rounded-full flex items-center justify-center transition hover:scale-110" style={{ background: '#0A0A0A', color: '#F5E6D3' }}><Minus size={11} /></button>
-                        <span className="text-sm font-semibold w-6 text-center">{item.quantity}</span>
-                        <button onClick={() => updateQty(item.id, 1)} className="w-7 h-7 rounded-full flex items-center justify-center transition hover:scale-110" style={{ background: '#0A0A0A', color: '#F5E6D3' }}><Plus size={11} /></button>
-                        <button onClick={() => removeFromCart(item.id)} className="ml-auto p-1 hover:scale-110 transition"><Trash2 size={14} style={{ color: '#FF4D2E' }} /></button>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-              <div className="border-t pt-6" style={{ borderColor: '#0A0A0A20' }}>
-                <div className="flex justify-between mb-2 text-sm opacity-70"><span>Subtotal</span><span>${cartTotal.toFixed(2)}</span></div>
-                <div className="flex justify-between mb-6 text-sm opacity-70">
-                  <span>Shipping</span><span>{cartTotal >= 25 ? 'FREE ★' : '$3.50'}</span>
-                </div>
-                <div className="flex justify-between mb-8">
-                  <span className="display text-3xl">Total</span>
-                  <span className="display text-3xl">${(cartTotal + (cartTotal >= 25 ? 0 : 3.5)).toFixed(2)}</span>
-                </div>
-                {cartTotal < 25 && (
-                  <div className="mb-4 p-3 rounded-xl text-xs text-center" style={{ background: '#FFD70030' }}>
-                    Add <strong>${(25 - cartTotal).toFixed(2)}</strong> more for free shipping
-                  </div>
-                )}
-                <button className="w-full py-4 rounded-full font-semibold transition hover:scale-[1.02] flex items-center justify-center gap-2" style={{ background: '#FF4D2E', color: '#F5E6D3' }}>
-                  Checkout · ${(cartTotal + (cartTotal >= 25 ? 0 : 3.5)).toFixed(2)} <ArrowRight size={16} />
-                </button>
-                <div className="label text-center mt-4 opacity-60">Secure · Stripe · 48hr ship</div>
-              </div>
-            </>
-          )}
-        </div>
-      </div>
-    </div>
-  )}
 </div>
-```
 
-);
-}
+<script>
+// ============ DATA ============
+const collections = [
+  { id: 'state-pride', name: 'State Pride', tagline: 'Hometown, pinned.', number: '01',
+    buttons: [
+      { id: 'sp1', title: 'Tree Hugging in AZ Hits Different', emoji: '🌵', bg: '#F5E6D3', accent: '#2D5016' },
+      { id: 'sp2', title: "Texas Forever Y'all", emoji: '🤠', bg: '#FF4D2E', accent: '#0A0A0A' },
+      { id: 'sp3', title: "California Dreamin'", emoji: '🌊', bg: '#0A0A0A', accent: '#FFD700' },
+      { id: 'sp4', title: 'Pure Michigan', emoji: '🌲', bg: '#1B4332', accent: '#F5E6D3' },
+      { id: 'sp5', title: 'NY State of Mind', emoji: '🗽', bg: '#FFD700', accent: '#0A0A0A' },
+      { id: 'sp6', title: 'Florida Man Approved', emoji: '🐊', bg: '#FF4D2E', accent: '#F5E6D3' },
+    ]},
+  { id: 'sarcastic', name: 'Sarcastic', tagline: 'Wear the eye-roll.', number: '02',
+    buttons: [
+      { id: 'sn1', title: 'Silently Correcting Your Grammar', emoji: '📝', bg: '#0A0A0A', accent: '#FF4D2E' },
+      { id: 'sn2', title: 'Ugh, As If', emoji: '🙄', bg: '#FFD700', accent: '#0A0A0A' },
+      { id: 'sn3', title: 'Sounds Like A You Problem', emoji: '☕', bg: '#F5E6D3', accent: '#0A0A0A' },
+      { id: 'sn4', title: 'Bold of You to Assume', emoji: '🤨', bg: '#FF4D2E', accent: '#FFD700' },
+      { id: 'sn5', title: 'Not Today, Satan', emoji: '😈', bg: '#0A0A0A', accent: '#FFD700' },
+      { id: 'sn6', title: 'I Have Trust Issues', emoji: '🦝', bg: '#1B4332', accent: '#F5E6D3' },
+    ]},
+  { id: 'pride', name: 'Pride', tagline: 'Loud. Proud. Pinned.', number: '03',
+    buttons: [
+      { id: 'pr1', title: 'They / Them', emoji: '🌈', bg: '#F5E6D3', accent: '#FF4D2E' },
+      { id: 'pr2', title: 'Love Is Love', emoji: '❤️', bg: '#FF4D2E', accent: '#FFD700' },
+      { id: 'pr3', title: 'Proud Ally', emoji: '🦋', bg: '#FFD700', accent: '#0A0A0A' },
+      { id: 'pr4', title: 'Trans Rights Are Human Rights', emoji: '🏳️‍⚧️', bg: '#0A0A0A', accent: '#F5E6D3' },
+      { id: 'pr5', title: 'Bi & Proud', emoji: '💜', bg: '#5A3D8A', accent: '#FFD700' },
+      { id: 'pr6', title: 'Found Family', emoji: '🌻', bg: '#FFD700', accent: '#FF4D2E' },
+    ]},
+  { id: 'emoji', name: 'Emoji Mood', tagline: 'A vibe. One inch.', number: '04',
+    buttons: [
+      { id: 'em1', title: 'Big Mood', emoji: '✨', bg: '#0A0A0A', accent: '#FFD700', large: true },
+      { id: 'em2', title: 'Crying Inside', emoji: '😭', bg: '#FF4D2E', accent: '#0A0A0A', large: true },
+      { id: 'em3', title: 'Touch Grass', emoji: '🌱', bg: '#1B4332', accent: '#F5E6D3', large: true },
+      { id: 'em4', title: 'Brain Empty', emoji: '🧠', bg: '#F5E6D3', accent: '#FF4D2E', large: true },
+      { id: 'em5', title: 'Coffee First', emoji: '☕', bg: '#FFD700', accent: '#0A0A0A', large: true },
+      { id: 'em6', title: 'Vibes Only', emoji: '🦋', bg: '#FF4D2E', accent: '#FFD700', large: true },
+    ]},
+  { id: 'bach', name: 'Bach Party', tagline: 'Last fling before the ring.', number: '05',
+    buttons: [
+      { id: 'bch1', title: 'Bride Tribe', emoji: '👰', bg: '#F5E6D3', accent: '#C83D8A' },
+      { id: 'bch2', title: 'Team Bride', emoji: '💍', bg: '#C83D8A', accent: '#F5E6D3' },
+      { id: 'bch3', title: 'Same Penis Forever', emoji: '🍆', bg: '#FFD700', accent: '#0A0A0A' },
+      { id: 'bch4', title: 'Pop the Bubbly', emoji: '🍾', bg: '#0A0A0A', accent: '#FFD700' },
+      { id: 'bch5', title: 'Drunk in Love', emoji: '🥂', bg: '#FF4D2E', accent: '#F5E6D3' },
+      { id: 'bch6', title: 'Last Sail Before the Veil', emoji: '⛵', bg: '#3D6B8A', accent: '#F5E6D3' },
+      { id: 'bch7', title: "Groom's Last Ride", emoji: '🤠', bg: '#0A0A0A', accent: '#FF4D2E' },
+      { id: 'bch8', title: 'Hot Mess Express', emoji: '🚂', bg: '#C83D8A', accent: '#FFD700' },
+      { id: 'bch9', title: 'I Do Crew', emoji: '💋', bg: '#F5E6D3', accent: '#FF4D2E' },
+    ]},
+];
 
+const allButtons = collections.flatMap(c => c.buttons.map(b => ({ ...b, collection: c.name })));
+const bestsellers = [allButtons[0], allButtons[7], allButtons[12], allButtons[18], allButtons[2], allButtons[10], allButtons[15], allButtons[20]];
+
+const SWATCH_COLORS = ['#F5E6D3', '#FF4D2E', '#FFD700', '#0A0A0A', '#1B4332', '#5A3D8A', '#3D6B8A', '#C83D8A'];
+const ACCENT_COLORS = ['#0A0A0A', '#F5E6D3', '#FF4D2E', '#FFD700', '#1B4332', '#5A3D8A', '#3D6B8A', '#C83D8A'];
+const FONTS = [{ id: 'display', label: 'Display' }, { id: 'serif', label: 'Serif' }, { id: 'sans', label: 'Sans' }, { id: 'mono', label: 'Mono' }];
+
+// ============ STATE ============
+let currentView = 'home';
+let activeCollection = null;
+let cart = [];
+let favorites = new Set();
+
+let designText = '';
+let designColor = '#0A0A0A';
+let bgColor = '#FF4D2E';
+let uploadedImage = null;
+let textSize = 28;
+let imageSize = 70;
+let fontFamily = 'display';
+
+// ============ HELPERS ============
 function shadeColor(color, percent) {
-const num = parseInt(color.replace(’#’, ‘’), 16);
-const amt = Math.round(2.55 * percent);
-const R = (num >> 16) + amt;
-const G = (num >> 8 & 0x00FF) + amt;
-const B = (num & 0x0000FF) + amt;
-return ‘#’ + (0x1000000 + (R < 255 ? R < 1 ? 0 : R : 255) * 0x10000 +
-(G < 255 ? G < 1 ? 0 : G : 255) * 0x100 +
-(B < 255 ? B < 1 ? 0 : B : 255)).toString(16).slice(1);
+  const num = parseInt(color.replace('#', ''), 16);
+  const amt = Math.round(2.55 * percent);
+  let R = (num >> 16) + amt, G = (num >> 8 & 0x00FF) + amt, B = (num & 0x0000FF) + amt;
+  R = Math.max(0, Math.min(255, R)); G = Math.max(0, Math.min(255, G)); B = Math.max(0, Math.min(255, B));
+  return '#' + (0x1000000 + R * 0x10000 + G * 0x100 + B).toString(16).slice(1);
 }
+
+function getFontFamilyCSS(font) {
+  if (font === 'serif' || font === 'display') return '"Fraunces", serif';
+  if (font === 'mono') return '"JetBrains Mono", monospace';
+  return '"Inter", sans-serif';
+}
+
+function renderPin(opts) {
+  const {
+    bg, accent, emoji, title, large, custom, customText, customImg, customBg, customAccent,
+    customSize, customFont, customImgSize = 70, size = 200
+  } = opts;
+  const finalBg = custom ? customBg : bg;
+  const finalAccent = custom ? customAccent : accent;
+
+  let inner = '';
+  if (custom) {
+    let imgHTML = '';
+    if (customImg) {
+      imgHTML = `<img src="${customImg}" alt="" style="width:${customImgSize}%;height:${customImgSize}%;object-fit:contain;${customText ? 'margin-bottom:8px' : ''}">`;
+    }
+    let textHTML = '';
+    if (customText) {
+      const fontWeight = customFont === 'display' ? 900 : 700;
+      const fontStyle = customFont === 'display' ? 'italic' : 'normal';
+      textHTML = `<div style="color:${customAccent};font-size:${customSize * (size / 200)}px;font-family:${getFontFamilyCSS(customFont)};font-weight:${fontWeight};font-style:${fontStyle};line-height:1;letter-spacing:-0.02em;word-break:break-word">${escapeHTML(customText)}</div>`;
+    }
+    inner = `<div class="pin-content">${imgHTML}${textHTML}</div>`;
+  } else if (large) {
+    inner = `<div style="position:relative;z-index:10;font-size:${size * 0.45}px;line-height:1">${emoji}</div>`;
+  } else {
+    inner = `<div class="pin-content">
+      <div class="pin-emoji" style="font-size:${size * 0.2}px;margin-bottom:${size * 0.015}px">${emoji}</div>
+      <div class="pin-title" style="color:${accent};font-size:${size * 0.082}px">${escapeHTML(title)}</div>
+    </div>`;
+  }
+
+  return `<div class="pin" style="width:${size}px;height:${size}px;background:radial-gradient(circle at 30% 25%, ${shadeColor(finalBg, 12)}, ${finalBg} 50%, ${shadeColor(finalBg, -18)})">
+    ${inner}
+    <div class="pin-inner-ring" style="border:1px solid ${finalAccent}25"></div>
+  </div>`;
+}
+
+function escapeHTML(str) {
+  if (!str) return '';
+  return String(str).replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m]));
+}
+
+// ============ RENDERING ============
+function setView(view, collection = null) {
+  currentView = view;
+  activeCollection = collection;
+  document.getElementById('view-home').classList.toggle('hidden', view !== 'home');
+  document.getElementById('view-collection').classList.toggle('hidden', view !== 'collection');
+  document.getElementById('view-designer').classList.toggle('hidden', view !== 'designer');
+
+  if (view === 'collection' && collection) renderCollectionPage(collection);
+  if (view === 'designer') updatePreview();
+  window.scrollTo(0, 0);
+  setTimeout(() => lucide.createIcons(), 50);
+}
+
+function scrollToCollections() {
+  if (currentView !== 'home') setView('home');
+  setTimeout(() => document.getElementById('collections')?.scrollIntoView({ behavior: 'smooth' }), 100);
+}
+
+function renderMarquee() {
+  const items = ['★ FREE US SHIPPING OVER $25', '— SHIPS IN 48 HOURS —', '★ 2.5" PINBACK BUTTONS', '— PRESSED BY HAND —', '★ DESIGN YOUR OWN', '— UNLIMITED COLORWAYS —'];
+  const block = items.map(t => `<span class="ticker-divider">${t}</span>`).join('');
+  document.getElementById('marquee-track').innerHTML = block + block;
+}
+
+function renderHeroPins() {
+  const pins = [
+    { ...{ bg: '#FF4D2E', accent: '#0A0A0A', emoji: '🌵', title: 'AZ Hits Different' }, size: 180, top: '8%', left: '10%', delay: '0s' },
+    { ...{ bg: '#0A0A0A', accent: '#FFD700', emoji: '✨', large: true }, size: 150, top: '38%', right: '5%', delay: '1.3s' },
+    { ...{ bg: '#FFD700', accent: '#0A0A0A', emoji: '🙄', title: 'Ugh, As If' }, size: 170, bottom: '12%', left: '20%', delay: '2.1s' },
+    { ...{ bg: '#1B4332', accent: '#F5E6D3', emoji: '🌈', title: 'They/Them' }, size: 130, top: '5%', right: '25%', delay: '0.6s' },
+  ];
+  document.getElementById('hero-pins').innerHTML = pins.map(p => {
+    const pos = `${p.top ? `top:${p.top};` : ''}${p.bottom ? `bottom:${p.bottom};` : ''}${p.left ? `left:${p.left};` : ''}${p.right ? `right:${p.right};` : ''}`;
+    return `<div class="pin-wrap float-y" style="${pos}animation-delay:${p.delay}">${renderPin(p)}</div>`;
+  }).join('');
+}
+
+function renderCollections() {
+  const html = collections.map((col, idx) => {
+    const heroBtn = col.buttons[0];
+    const cardClass = idx % 2 === 0 ? 'dark' : 'orange';
+    const taglineColor = idx % 2 === 0 ? '#FFD700' : '#0A0A0A';
+    return `<button class="collection-card grain ${cardClass}" onclick='setView("collection", ${JSON.stringify(col).replace(/'/g, "&apos;")})'>
+      <div class="collection-card-inner">
+        <div class="collection-card-top">
+          <div>
+            <div class="label" style="opacity:0.7">Collection / ${col.number}</div>
+            <h3 class="display">${col.name}</h3>
+            <div class="display-italic tagline" style="color:${taglineColor}">${col.tagline}</div>
+          </div>
+          <div class="collection-card-arrow"><i data-lucide="arrow-up-right" style="width:20px;height:20px"></i></div>
+        </div>
+        <div class="collection-card-bottom">
+          <div class="label" style="opacity:0.7">${col.buttons.length} designs · from $5</div>
+          <div class="float-y" style="animation-delay:${idx * 0.3}s">${renderPin({ ...heroBtn, size: 170 })}</div>
+        </div>
+      </div>
+    </button>`;
+  }).join('');
+  document.getElementById('collections-grid').innerHTML = html;
+}
+
+function renderBestsellers() {
+  const html = bestsellers.map(btn => `
+    <div class="bestseller" onclick='addToCart(${JSON.stringify(btn).replace(/'/g, "&apos;")})'>
+      <button class="bestseller-fav" onclick="event.stopPropagation();toggleFavorite('${btn.id}')" style="background:${favorites.has(btn.id) ? '#FF4D2E' : 'rgba(245,230,211,0.06)'}">
+        <i data-lucide="heart" style="width:14px;height:14px;${favorites.has(btn.id) ? 'fill:#F5E6D3' : ''};color:#F5E6D3"></i>
+      </button>
+      <div class="bestseller-pin-wrap">${renderPin({ ...btn, size: 150 })}</div>
+      <div class="label">${btn.collection}</div>
+      <div class="bestseller-title">${escapeHTML(btn.title)}</div>
+      <div class="bestseller-row">
+        <span class="display">$5</span>
+        <button class="add-mini" onclick="event.stopPropagation();addToCart(${JSON.stringify(btn).replace(/'/g, '&apos;').replace(/"/g, '&quot;')})">Add +</button>
+      </div>
+    </div>`).join('');
+  document.getElementById('bestsellers-grid').innerHTML = html;
+}
+
+function renderCtaPin() {
+  document.getElementById('cta-pin').innerHTML = renderPin({
+    custom: true, customText: 'MAKE IT WEIRD', customBg: '#FFD700', customAccent: '#0A0A0A',
+    customSize: 20, customFont: 'display', size: 220
+  });
+}
+
+function renderCollectionPage(col) {
+  document.getElementById('col-number').textContent = `Collection / ${col.number}`;
+  document.getElementById('col-title').innerHTML = `${escapeHTML(col.name)}<span style="color:#FF4D2E">.</span>`;
+  document.getElementById('col-tagline').textContent = col.tagline;
+  document.getElementById('col-meta').textContent = `${col.buttons.length} designs · $5 each · 2.5"`;
+
+  const html = col.buttons.map(btn => `
+    <div class="product-card">
+      <button class="product-fav" onclick="toggleFavorite('${btn.id}')" style="background:${favorites.has(btn.id) ? '#FF4D2E' : '#F5E6D3'}">
+        <i data-lucide="heart" style="width:14px;height:14px;${favorites.has(btn.id) ? 'fill:#F5E6D3;color:#F5E6D3' : 'color:#0A0A0A'}"></i>
+      </button>
+      <div class="product-pin-wrap">${renderPin({ ...btn, size: 220 })}</div>
+      <div class="product-title">${escapeHTML(btn.title)}</div>
+      <div class="product-row">
+        <span class="display">$5</span>
+        <button class="add-btn" onclick='addToCart(${JSON.stringify(btn).replace(/'/g, "&apos;")})'>Add to Cart</button>
+      </div>
+    </div>`).join('');
+  document.getElementById('products-grid').innerHTML = html;
+  setTimeout(() => lucide.createIcons(), 50);
+}
+
+// ============ DESIGNER ============
+function renderFontOptions() {
+  document.getElementById('font-options').innerHTML = FONTS.map(f =>
+    `<button class="font-btn ${fontFamily === f.id ? 'active' : ''}" onclick="setFont('${f.id}')">${f.label}</button>`
+  ).join('');
+}
+
+function renderSwatches() {
+  document.getElementById('bg-swatches').innerHTML = SWATCH_COLORS.map(c =>
+    `<button class="swatch ${bgColor === c ? 'active' : ''}" style="background:${c}" onclick="setBg('${c}')"></button>`
+  ).join('');
+  document.getElementById('accent-swatches').innerHTML = ACCENT_COLORS.map(c =>
+    `<button class="swatch ${designColor === c ? 'active' : ''}" style="background:${c}" onclick="setAccent('${c}')"></button>`
+  ).join('');
+}
+
+function setFont(f) { fontFamily = f; renderFontOptions(); updatePreview(); }
+function setBg(c) { bgColor = c; renderSwatches(); updatePreview(); }
+function setAccent(c) { designColor = c; renderSwatches(); updatePreview(); }
+function updateSize() { textSize = +document.getElementById('text-size').value; document.getElementById('size-label').textContent = `Size · ${textSize}px`; updatePreview(); }
+function updateImgSize() { imageSize = +document.getElementById('img-size').value; document.getElementById('img-size-label').textContent = `${imageSize}%`; updatePreview(); }
+
+function updatePreview() {
+  designText = document.getElementById('design-text')?.value || '';
+  document.getElementById('designer-preview-pin').innerHTML = renderPin({
+    custom: true, customText: designText, customImg: uploadedImage, customBg: bgColor,
+    customAccent: designColor, customSize: textSize, customFont: fontFamily, customImgSize: imageSize, size: 300
+  });
+  document.getElementById('add-custom-btn').disabled = !designText && !uploadedImage;
+  setTimeout(() => lucide.createIcons(), 30);
+}
+
+function handleUpload(e) {
+  const file = e.target.files?.[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (ev) => {
+    uploadedImage = ev.target.result;
+    document.getElementById('upload-preview').src = uploadedImage;
+    document.getElementById('upload-empty').classList.add('hidden');
+    document.getElementById('upload-filled').classList.remove('hidden');
+    updatePreview();
+    setTimeout(() => lucide.createIcons(), 30);
+  };
+  reader.readAsDataURL(file);
+}
+
+function removeUpload() {
+  uploadedImage = null;
+  document.getElementById('file-input').value = '';
+  document.getElementById('upload-empty').classList.remove('hidden');
+  document.getElementById('upload-filled').classList.add('hidden');
+  updatePreview();
+  setTimeout(() => lucide.createIcons(), 30);
+}
+
+function addCustomToCart() {
+  const item = {
+    id: `custom-${Date.now()}`, title: designText || 'Custom Button',
+    bg: bgColor, accent: designColor, customImg: uploadedImage, customText: designText,
+    customFont: fontFamily, customSize: textSize, customImgSize: imageSize,
+  };
+  addToCart(item, 1, true);
+}
+
+// ============ CART ============
+function addToCart(button, quantity = 1, custom = false) {
+  const existing = cart.find(item => item.id === button.id);
+  if (existing) {
+    existing.quantity += quantity;
+  } else {
+    cart.push({ ...button, quantity, custom, price: custom ? 6 : 5 });
+  }
+  renderCart();
+  openCart();
+}
+
+function updateQty(id, delta) {
+  const item = cart.find(i => i.id === id);
+  if (!item) return;
+  item.quantity += delta;
+  if (item.quantity <= 0) cart = cart.filter(i => i.id !== id);
+  renderCart();
+}
+
+function removeFromCart(id) {
+  cart = cart.filter(i => i.id !== id);
+  renderCart();
+}
+
+function toggleFavorite(id) {
+  if (favorites.has(id)) favorites.delete(id); else favorites.add(id);
+  if (currentView === 'home') renderBestsellers();
+  if (currentView === 'collection' && activeCollection) renderCollectionPage(activeCollection);
+  setTimeout(() => lucide.createIcons(), 30);
+}
+
+function openCart() { document.getElementById('cart-drawer').classList.add('open'); document.body.style.overflow = 'hidden'; setTimeout(() => lucide.createIcons(), 30); }
+function closeCart() { document.getElementById('cart-drawer').classList.remove('open'); document.body.style.overflow = ''; }
+
+function renderCart() {
+  const cartTotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+  const cartCount = cart.reduce((sum, item) => sum + item.quantity, 0);
+  document.getElementById('cart-count').textContent = cartCount;
+  document.getElementById('cart-header-count').textContent = `${cartCount} ${cartCount === 1 ? 'item' : 'items'}`;
+
+  const body = document.getElementById('cart-body');
+  if (cart.length === 0) {
+    body.innerHTML = `<div class="cart-empty">
+      <div class="display-italic">empty.</div>
+      <div class="label">Add some buttons</div>
+    </div>`;
+    return;
+  }
+
+  const itemsHTML = cart.map(item => {
+    const pinHTML = renderPin({
+      ...item, custom: item.custom, customText: item.customText, customImg: item.customImg,
+      customBg: item.bg, customAccent: item.accent, customSize: item.customSize,
+      customFont: item.customFont, customImgSize: item.customImgSize, size: 70
+    });
+    return `<div class="cart-item">
+      ${pinHTML}
+      <div class="cart-item-info">
+        <div class="cart-item-title">${escapeHTML(item.title || 'Custom Button')}</div>
+        ${item.custom ? '<div class="label" style="margin-top:2px;color:#FF4D2E">Your Design</div>' : ''}
+        <div class="cart-item-price">$${item.price.toFixed(2)}</div>
+        <div class="cart-item-controls">
+          <button class="qty-btn" onclick="updateQty('${item.id}', -1)"><i data-lucide="minus" style="width:11px;height:11px"></i></button>
+          <span class="qty-num">${item.quantity}</span>
+          <button class="qty-btn" onclick="updateQty('${item.id}', 1)"><i data-lucide="plus" style="width:11px;height:11px"></i></button>
+          <button class="cart-item-remove" onclick="removeFromCart('${item.id}')"><i data-lucide="trash-2" style="width:14px;height:14px;color:#FF4D2E"></i></button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+
+  const shipping = cartTotal >= 25 ? 0 : 3.5;
+  const total = cartTotal + shipping;
+  const remaining = 25 - cartTotal;
+
+  body.innerHTML = `
+    <div class="cart-items">${itemsHTML}</div>
+    <div class="cart-summary">
+      <div class="cart-row"><span>Subtotal</span><span>$${cartTotal.toFixed(2)}</span></div>
+      <div class="cart-row"><span>Shipping</span><span>${cartTotal >= 25 ? 'FREE ★' : '$3.50'}</span></div>
+      <div class="cart-total"><span class="display">Total</span><span class="display">$${total.toFixed(2)}</span></div>
+      ${cartTotal < 25 ? `<div class="free-ship-note">Add <strong>$${remaining.toFixed(2)}</strong> more for free shipping</div>` : ''}
+      <button class="checkout-btn">Checkout · $${total.toFixed(2)} <i data-lucide="arrow-right" style="width:16px;height:16px"></i></button>
+      <div class="label checkout-note">Secure · Stripe · 48hr ship</div>
+    </div>`;
+  setTimeout(() => lucide.createIcons(), 30);
+}
+
+// AI prompt button enable
+document.addEventListener('DOMContentLoaded', () => {
+  renderMarquee();
+  renderHeroPins();
+  renderCollections();
+  renderBestsellers();
+  renderCtaPin();
+  renderFontOptions();
+  renderSwatches();
+  updatePreview();
+  renderCart();
+  lucide.createIcons();
+
+  document.getElementById('ai-prompt')?.addEventListener('input', (e) => {
+    document.getElementById('ai-gen-btn').disabled = !e.target.value;
+  });
+});
+</script>
+</body>
+</html>
