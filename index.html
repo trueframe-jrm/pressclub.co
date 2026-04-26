@@ -814,7 +814,8 @@ function renderCollections() {
 }
 
 function renderBestsellers() {
-  const html = bestsellers.map(btn => `
+  const source = window.supabaseProducts || bestsellers;
+  const html = source.map(btn => `
     <div class="bestseller" onclick='addToCart(${JSON.stringify(btn).replace(/'/g, "&apos;")})'>
       <button class="bestseller-fav" onclick="event.stopPropagation();toggleFavorite('${btn.id}')" style="background:${favorites.has(btn.id) ? '#FF4D2E' : 'rgba(245,230,211,0.06)'}">
         <i data-lucide="heart" style="width:14px;height:14px;${favorites.has(btn.id) ? 'fill:#F5E6D3' : ''};color:#F5E6D3"></i>
@@ -823,7 +824,7 @@ function renderBestsellers() {
       <div class="label">${btn.collection}</div>
       <div class="bestseller-title">${escapeHTML(btn.title)}</div>
       <div class="bestseller-row">
-        <span class="display">$5</span>
+        <span class="display">$${btn.price || 5}</span>
         <button class="add-mini" onclick="event.stopPropagation();addToCart(${JSON.stringify(btn).replace(/'/g, '&apos;').replace(/"/g, '&quot;')})">Add +</button>
       </div>
     </div>`).join('');
@@ -859,7 +860,46 @@ function renderCollectionPage(col) {
   setTimeout(() => lucide.createIcons(), 50);
 }
 async function loadProductsFromSupabase() {
+  if (!window.supabase) {
+    console.error('Supabase is not loaded yet');
+    return;
+  }
+
   const { data, error } = await window.supabase
+    .from('Products')
+    .select('*')
+    .eq('Active', true)
+    .order('id', { ascending: true });
+
+  if (error) {
+    console.error('Supabase product error:', error);
+    return;
+  }
+
+  const products = data.map(item => ({
+    id: item.id,
+    title: item.Name,
+    price: item.Price || 5,
+    collection: 'State Series',
+    custom: true,
+    customImg: item.Image,
+    customText: '',
+    customBg: '#F5E6D3',
+    customAccent: '#0A0A0A',
+    customImgSize: 95
+  }));
+
+  window.supabaseProducts = products;
+
+  renderBestsellers();
+
+  renderCollectionPage({
+    name: 'State Series',
+    number: '01',
+    tagline: 'Collectible pinback buttons from coast to coast.',
+    buttons: products
+  });
+}  const { data, error } = await window.supabase
     .from('Products')
     .select('*')
     .eq('Active', true)
@@ -876,7 +916,8 @@ async function loadProductsFromSupabase() {
     price: item.Price,
     customImg: item.Image
   }))
-
+window.supabaseProducts = products;
+  renderBestsellers();
   renderCollectionPage({
     title: 'State Series',
     tagline: 'Collectible pinback buttons from coast to coast.',
