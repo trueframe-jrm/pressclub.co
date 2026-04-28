@@ -929,40 +929,6 @@ function renderCollectionPage(col) {
 // ============ SUPABASE: load State Pride image URLs ============
 // Fetches only the state-pride products and builds a slug→imageUrl map.
 // On success, re-renders anything visible that uses those images.
-async function loadStatePrideImages() {
-  if (!window.supabase) return;
-
-  try {
-    const { data, error } = await window.supabase
-      .from('products')
-      .select('slug, image_url')
-      .not('image_url', 'is', nulasync function loadStatePrideImages() {
-  if (!window.supabase) return;
-  try {
-    const { data, error } = await window.supabase
-      .from('Products')
-      .select('id, Name, Image')
-      .not('Image', 'is', null);
-    if (error) { console.warn('Supabase error:', error.message); return; }
-    if (!data || data.length === 0) return;
-    const nameToId = {
-      'Arizona Tree Hugger':           'sp1',
-      "Texas Forever Y'all":           'sp2',
-      'California West Coast Dreamin': 'sp3',
-      'South Carolina Paradise':       'sp4',
-      'New York Liberty Walk':         'sp5',
-      'Floridian Masterpiece':         'sp6',
-    };
-    window.statePrideImageMap = {};
-    data.forEach(row => {
-      const btnId = nameToId[row.Name];
-      if (btnId && row.Image) window.statePrideImageMap[btnId] = row.Image;
-    });
-    if (currentView === 'collection' && activeCollection?.id === 'state-pride') {
-      renderCollectionPage(activeCollection);
-    }
-  } catch (e) { console.warn('Could not load State Pride images:', e); }
-}
 l);
 
     if (error || !data || data.length === 0) return;
@@ -1002,36 +968,6 @@ async function loadProductsFromSupabase() {
   }));
 }
 
-  const { data, error } = await window.supabase
-    .from('Products')
-    .select('*')
-    .order('id', { ascending: true });
-
-  if (error || !data || data.length === 0) {
-    renderBestsellers();
-    return;
-  }
-
-  const products = data.map(item => ({
-    id: item.id,
-    title: item.Name,
-    price: item.Price || 5,
-    collection: 'State Series',
-    custom: true,
-    customImg: item.Image,
-    customText: '',
-    customBg: '#F5E6D3',
-    customAccent: '#0A0A0A',
-    customImgSize: 95
-  }));
-
-  window.supabaseProducts = products;
-  renderBestsellers();
-}
-
-// ============ DESIGNER ============
-function renderFontOptions() {
-  document.getElementById('font-options').innerHTML = FONTS.map(f =>
     `<button class="font-btn ${fontFamily === f.id ? 'active' : ''}" onclick="setFont('${f.id}')">${f.label}</button>`
   ).join('');
 }
