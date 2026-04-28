@@ -7,6 +7,8 @@
 <title>Press Club — Pinback Buttons & Badges</title>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,900;1,9..144,400;1,9..144,900&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
   html, body { background: #F5E6D3; color: #0A0A0A; font-family: 'Inter', sans-serif; -webkit-font-smoothing: antialiased; }
@@ -87,17 +89,16 @@ background-image: url(“data:image/svg+xml,%3Csvg viewBox=‘0 0 400 400’ xml
 .hero-grid { display: grid; gap: 32px; align-items: center; padding: 48px 0 64px; position: relative; z-index: 10; }
 @media (min-width: 1024px) { .hero-grid { grid-template-columns: repeat(12, 1fr); padding-top: 80px; } }
 
-/* Center the hero text and control its width */
 .hero-text {
 grid-column: span 12;
 text-align: center;
 margin-left: auto;
 margin-right: auto;
-max-width: 800px;
+max-width: 700px;
 }
 @media (min-width: 1024px) {
 .hero-text {
-grid-column: 2 / span 5;
+grid-column: 3 / span 5;
 }
 }
 
@@ -116,9 +117,8 @@ grid-column: 2 / span 5;
 @media (min-width: 768px) { .hero-stats-grid { grid-template-columns: repeat(4, 1fr); } }
 .hero-stat .display { font-size: 36px; }
 .hero-stat .label { margin-top: 4px; color: #0A0A0A88; }
-.hero-stat {
-text-align: center;
-}
+.hero-stat { text-align: center; }
+
 /* SECTIONS */
 .section { padding: 80px 0; }
 @media (min-width: 1024px) { .section { padding: 112px 0; } }
@@ -336,6 +336,25 @@ position: relative; background: #F5E6D3;
 .checkout-btn:hover { transform: scale(1.02); }
 .checkout-note { text-align: center; margin-top: 16px; opacity: 0.6; }
 
+/* ── EDIT 1: Real-photo pin styles ── */
+.pin-photo { position: relative; overflow: hidden; }
+.pin-photo-img {
+position: absolute; inset: 0;
+object-fit: cover; border-radius: 50%; display: block;
+filter: saturate(1.08) contrast(1.02);
+}
+.pin-photo-gloss {
+position: absolute; top: 8%; left: 22%; right: 22%; height: 22%;
+border-radius: 50%; opacity: 0.45; pointer-events: none; z-index: 20;
+background: radial-gradient(ellipse at center, rgba(255,255,255,0.9), transparent 70%);
+}
+.pin-photo::after {
+content: ‘’; position: absolute; inset: 0; border-radius: 50%;
+pointer-events: none; z-index: 15;
+box-shadow: inset 0 0 28px rgba(0,0,0,0.28);
+}
+.pin-photo.pin-photo-error .pin-photo-img { display: none; }
+
 .hidden { display: none !important; }
 </style>
 
@@ -349,7 +368,7 @@ position: relative; background: #F5E6D3;
     <button class="logo" onclick="setView('home')">
       <div class="logo-circle"></div>
       <div class="logo-text">
-        <div class="display">PRESS CLUB</div>
+        <div class="display">PRESS CLUB</div>
         <div class="label">est. 2026</div>
       </div>
     </button>
@@ -585,7 +604,7 @@ position: relative; background: #F5E6D3;
               <div class="label" id="img-size-label" style="color:#FF4D2E">70%</div>
             </div>
             <input type="range" min="20" max="95" value="70" id="img-size" oninput="updateImgSize()">
-            <div style="display:flex;justify-content:space-between;margin-top:8px" class="label" >
+            <div style="display:flex;justify-content:space-between;margin-top:8px" class="label">
               <span style="opacity:0.5">Small</span>
               <span style="opacity:0.5">Fill</span>
             </div>
@@ -634,7 +653,7 @@ position: relative; background: #F5E6D3;
     </div>
   </div>
 </div>
-
+<script src="supabase.js"></script>
 <script>
 // ============ DATA ============
 const collections = [
@@ -724,14 +743,38 @@ function getFontFamilyCSS(font) {
   return '"Inter", sans-serif';
 }
 
+// ============ EDIT 2: Updated renderPin with real photo support ============
 function renderPin(opts) {
   const {
     bg, accent, emoji, title, large, custom, customText, customImg, customBg, customAccent,
-    customSize, customFont, customImgSize = 70, size = 200
+    customSize, customFont, customImgSize = 70, size = 200,
+    imageUrl,  // Supabase public URL — present on State Pride products
   } = opts;
-  const finalBg = custom ? customBg : bg;
-  const finalAccent = custom ? customAccent : accent;
 
+  const finalBg     = custom ? customBg     : (bg     || '#FF4D2E');
+  const finalAccent = custom ? customAccent : (accent || '#F5E6D3');
+
+  // ── Real photo mode: used when product has an image_url from Supabase ──
+  // Falls back gracefully to emoji render if the image 404s.
+  if (imageUrl && !custom) {
+    return `<div class="pin pin-photo" style="
+        width:${size}px;height:${size}px;
+        background:radial-gradient(circle at 30% 25%, ${shadeColor(finalBg, 12)}, ${finalBg} 50%, ${shadeColor(finalBg, -18)});
+      ">
+      <img
+        src="${escapeHTML(imageUrl)}"
+        alt="${escapeHTML(title || '')}"
+        class="pin-photo-img"
+        style="width:${size}px;height:${size}px;"
+        loading="lazy"
+        onerror="this.parentElement.classList.add('pin-photo-error')"
+      >
+      <div class="pin-photo-gloss"></div>
+      <div class="pin-inner-ring" style="border:1px solid ${finalAccent}25"></div>
+    </div>`;
+  }
+
+  // ── All existing branches unchanged ──
   let inner = '';
   if (custom) {
     let imgHTML = '';
@@ -829,7 +872,8 @@ function renderCollections() {
 }
 
 function renderBestsellers() {
-  const html = bestsellers.map(btn => `
+  const source = window.supabaseProducts || bestsellers;
+  const html = source.map(btn => `
     <div class="bestseller" onclick='addToCart(${JSON.stringify(btn).replace(/'/g, "&apos;")})'>
       <button class="bestseller-fav" onclick="event.stopPropagation();toggleFavorite('${btn.id}')" style="background:${favorites.has(btn.id) ? '#FF4D2E' : 'rgba(245,230,211,0.06)'}">
         <i data-lucide="heart" style="width:14px;height:14px;${favorites.has(btn.id) ? 'fill:#F5E6D3' : ''};color:#F5E6D3"></i>
@@ -838,7 +882,7 @@ function renderBestsellers() {
       <div class="label">${btn.collection}</div>
       <div class="bestseller-title">${escapeHTML(btn.title)}</div>
       <div class="bestseller-row">
-        <span class="display">$5</span>
+        <span class="display">$${btn.price || 5}</span>
         <button class="add-mini" onclick="event.stopPropagation();addToCart(${JSON.stringify(btn).replace(/'/g, '&apos;').replace(/"/g, '&quot;')})">Add +</button>
       </div>
     </div>`).join('');
@@ -858,7 +902,15 @@ function renderCollectionPage(col) {
   document.getElementById('col-tagline').textContent = col.tagline;
   document.getElementById('col-meta').textContent = `${col.buttons.length} designs · $5 each · 2.5"`;
 
-  const html = col.buttons.map(btn => `
+  // For the State Pride collection, merge in live image_url data from Supabase
+  // if it has been loaded. For all other collections, use static data as-is.
+  const liveMap = window.statePrideImageMap || {};
+  const buttons = col.buttons.map(btn => ({
+    ...btn,
+    imageUrl: liveMap[btn.id] || null,
+  }));
+
+  const html = buttons.map(btn => `
     <div class="product-card">
       <button class="product-fav" onclick="toggleFavorite('${btn.id}')" style="background:${favorites.has(btn.id) ? '#FF4D2E' : '#F5E6D3'}">
         <i data-lucide="heart" style="width:14px;height:14px;${favorites.has(btn.id) ? 'fill:#F5E6D3;color:#F5E6D3' : 'color:#0A0A0A'}"></i>
@@ -866,12 +918,115 @@ function renderCollectionPage(col) {
       <div class="product-pin-wrap">${renderPin({ ...btn, size: 220 })}</div>
       <div class="product-title">${escapeHTML(btn.title)}</div>
       <div class="product-row">
-        <span class="display">$5</span>
+        <span class="display">$${btn.price || 5}</span>
         <button class="add-btn" onclick='addToCart(${JSON.stringify(btn).replace(/'/g, "&apos;")})'>Add to Cart</button>
       </div>
     </div>`).join('');
   document.getElementById('products-grid').innerHTML = html;
   setTimeout(() => lucide.createIcons(), 50);
+}
+
+// ============ SUPABASE: load State Pride image URLs ============
+// Fetches only the state-pride products and builds a slug→imageUrl map.
+// On success, re-renders anything visible that uses those images.
+async function loadStatePrideImages() {
+  if (!window.supabase) return;
+
+  try {
+    const { data, error } = await window.supabase
+      .from('products')
+      .select('slug, image_url')
+      .not('image_url', 'is', nulasync function loadStatePrideImages() {
+  if (!window.supabase) return;
+  try {
+    const { data, error } = await window.supabase
+      .from('Products')
+      .select('id, Name, Image')
+      .not('Image', 'is', null);
+    if (error) { console.warn('Supabase error:', error.message); return; }
+    if (!data || data.length === 0) return;
+    const nameToId = {
+      'Arizona Tree Hugger':           'sp1',
+      "Texas Forever Y'all":           'sp2',
+      'California West Coast Dreamin': 'sp3',
+      'South Carolina Paradise':       'sp4',
+      'New York Liberty Walk':         'sp5',
+      'Floridian Masterpiece':         'sp6',
+    };
+    window.statePrideImageMap = {};
+    data.forEach(row => {
+      const btnId = nameToId[row.Name];
+      if (btnId && row.Image) window.statePrideImageMap[btnId] = row.Image;
+    });
+    if (currentView === 'collection' && activeCollection?.id === 'state-pride') {
+      renderCollectionPage(activeCollection);
+    }
+  } catch (e) { console.warn('Could not load State Pride images:', e); }
+}
+l);
+
+    if (error || !data || data.length === 0) return;
+
+    // Build a map: { sp1: 'https://...', sp2: 'https://...', ... }
+    window.statePrideImageMap = {};
+    data.forEach(row => {
+      if (row.slug && row.image_url) {
+        window.statePrideImageMap[row.slug] = row.image_url;
+      }
+    });
+
+    // Re-render if we're currently on the State Pride collection page
+    if (currentView === 'collection' && activeCollection?.id === 'state-pride') {
+      renderCollectionPage(activeCollection);
+    }
+  } catch (e) {
+    console.warn('Could not load State Pride images:', e);
+  }
+}
+
+async function loadProductsFromSupabase() {
+  if (!window.supabase) return;
+  const { data, error } = await window.supabase
+    .from('Products')
+    .select('id, Name, Price, Image')
+    .order('id', { ascending: true });
+  if (error || !data || data.length === 0) return;
+  window.supabaseProducts = data.map(item => ({
+    id: String(item.id),
+    title: item.Name,
+    price: item.Price || 5,
+    collection: 'State Series',
+    imageUrl: item.Image || null,
+    bg: '#F5E6D3',
+    accent: '#0A0A0A',
+  }));
+}
+
+  const { data, error } = await window.supabase
+    .from('Products')
+    .select('*')
+    .order('id', { ascending: true });
+
+  if (error || !data || data.length === 0) {
+    renderBestsellers();
+    return;
+  }
+
+  const products = data.map(item => ({
+    id: item.id,
+    title: item.Name,
+    price: item.Price || 5,
+    collection: 'State Series',
+    custom: true,
+    customImg: item.Image,
+    customText: '',
+    customBg: '#F5E6D3',
+    customAccent: '#0A0A0A',
+    customImgSize: 95
+  }));
+
+  window.supabaseProducts = products;
+  renderBestsellers();
 }
 
 // ============ DESIGNER ============
@@ -1039,6 +1194,8 @@ document.addEventListener('DOMContentLoaded', () => {
   renderSwatches();
   updatePreview();
   renderCart();
+  loadProductsFromSupabase();
+  loadStatePrideImages(); // ← load real photos for State Pride
   lucide.createIcons();
 
   document.getElementById('ai-prompt')?.addEventListener('input', (e) => {
